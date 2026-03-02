@@ -41,7 +41,7 @@ jobs:
         run: |
           docker build \
             -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:${{ env.VERSION }} \
-            .
+            frontend/
 
       - name: Push image
         run: |
