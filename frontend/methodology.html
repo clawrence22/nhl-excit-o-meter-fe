@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NHL Excite‑o‑Meter - Methodology</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header" onclick="window.location.href='index.html'" style="cursor: pointer;">
+            <h1 class="title">NHL Excite‑o‑Meter</h1>
+            <p class="subtitle">Methodology</p>
+        </div>
+
+        <div class="methodology-content">
+            <h2>How Excitement is Calculated</h2>
+
+            <div class="method-section">
+                <h3>Base event weights</h3>
+                <p>The core weights in <code>exciteo/config.py</code> apply before any context multipliers or decay:</p>
+                <ul>
+                    <li><strong>Goals:</strong> 1.08 points each (before bonuses).</li>
+                    <li><strong>High Danger Chances (HDC):</strong> 0.42 points.</li>
+                    <li><strong>Medium Danger Chances (MDC):</strong> 0.28 points.</li>
+                    <li><strong>Hits:</strong> 0.10 points with an anti-spam guard—roughly eight hits per simulated minute get full value, then contributions drop to 25% via <code>HITS_OVERSAT_SCALE</code>.</li>
+                    <li><strong>Expected Goals (xG):</strong> 0.28 × the xG proxy derived from shot distance and type.</li>
+                </ul>
+                <p>Shot danger buckets follow the backend geometry helper: ≤20 ft is high danger, 21–35 ft is medium danger, anything deeper is low danger.</p>
+            </div>
+
+            <div class="method-section">
+                <h3>Signature moments &amp; bonuses</h3>
+                <p>The scorer rewards key swings on top of the base weights:</p>
+                <ul>
+                    <li><strong>Short-handed goals:</strong> +0.18.</li>
+                    <li><strong>Tie/lead change goals:</strong> +0.12 when the play pulls even or grabs the lead.</li>
+                    <li><strong>Comeback goals:</strong> +0.30 for trimming a multi-goal deficit to within striking distance.</li>
+                    <li><strong>Lead swing goals:</strong> +0.24 once a game has seen at least two lead changes.</li>
+                    <li><strong>Fights:</strong> 1.20 base + 0.20 per major, +0.20 more for line brawls, with a 50% repeat cut if another fight erupts inside three minutes. A Gaussian “afterglow” can add up to 0.30 in the immediate aftermath.</li>
+                </ul>
+            </div>
+
+            <div class="method-section">
+                <h3>Context multipliers</h3>
+                <p>Every event is scaled by how tight and dramatic the game state is:</p>
+                <ul>
+                    <li><strong>Score differential:</strong> tied games earn a 1.33× boost, one-goal games 1.22×, two-goal games 1.00×, and anything 3+ goals drops to 0.88×.</li>
+                    <li><strong>Late-game tension:</strong> inside the last five minutes of the third period, one-goal games stack an additional 1.12× “OT potential” multiplier.</li>
+                    <li><strong>Overtime:</strong> any OT event is locked to a 1.50× multiplier; shootouts are flagged but capped by the same event limit below.</li>
+                </ul>
+                <p>These multipliers are recorded in the API’s <code>context.multiplierReasons</code> so the UI can explain why a game is surging.</p>
+            </div>
+
+            <div class="method-section">
+                <h3>Game-level modifiers</h3>
+                <p>After all events are summed, the backend applies team-level adjustments:</p>
+                <ul>
+                    <li><strong>Blowout penalty:</strong> no reduction through a two-goal gap, 0.66× at a three-goal margin, and 0.35× at four or more.</li>
+                    <li><strong>High-scoring boost:</strong> combined goal totals unlock multipliers of 1.35 (≥5.5), 1.45 (≥6.0), 1.55 (≥6.5), 1.64 (≥7.0), and 1.72 (≥7.5) so barn burners pop.</li>
+                    <li><strong>Ice tilt penalty:</strong> when one team controls more than 65% of high/medium danger looks, multipliers step down (0.90 at 65%, 0.75 at 70%, 0.60 at 85%).</li>
+                    <li><strong>Low-action penalty:</strong> if goals + danger chances + hits stay below 15 events after the first intermission, a 0.90× dampener reflects a sleepy game.</li>
+                </ul>
+            </div>
+
+            <div class="method-section">
+                <h3>Recency decay &amp; event cap</h3>
+                <p>Events are spaced at roughly six seconds per play. The scorer uses a five-minute half-life (300 seconds) exponential decay so recent chaos matters most, and every event is capped at 4.0 points after context but before decay to prevent outliers from blowing up the total.</p>
+            </div>
+
+            <div class="method-section">
+                <h3>Categories</h3>
+                <p>Raw excitement scores map to the same tiers the API returns:</p>
+                <ul>
+                    <li><span class="category-badge meh" style="font-size: 0.7em; padding: 2px 6px;">Meh</span> 0 – 5.0</li>
+                    <li><span class="category-badge heated" style="font-size: 0.7em; padding: 2px 6px;">Heating Up</span> 5.0 – 10.5</li>
+                    <li><span class="category-badge sizzling" style="font-size: 0.7em; padding: 2px 6px;">Sizzling</span> 10.5 – 17.5</li>
+                    <li><span class="category-badge barn-burner" style="font-size: 0.7em; padding: 2px 6px;">Barn Burner</span> 17.5+</li>
+                </ul>
+            </div>
+
+            <div class="method-section">
+                <h3>Preview model</h3>
+                <p>The <code>PreviewModel</code> in the backend re-scores up to the last 15 completed regular-season/playoff games for each team (1 ÷ game-order weighting so fresh games count most). That weighted excitement total is compared to a 9.0 baseline, clipped between 0.90× and 1.10×, averaged across both clubs, and scaled by 0.45 to fit the live score range.</p>
+                <p>Recent form metrics (goals, HDC, MDC, hits, xG) reuse the same weights to build a projected excitement contribution, plus storyline hooks:</p>
+                <ul>
+                    <li><strong>High scoring:</strong> combined recent goals ≥5.7.</li>
+                    <li><strong>Chance barrage:</strong> combined high-danger chances ≥40.</li>
+                    <li><strong>Hits frenzy:</strong> combined hits ≥50.</li>
+                    <li><strong>Low-event pace:</strong> combined goals ≤2.5.</li>
+                </ul>
+                <p>The preview output also inherits the blowout guard: if recent goal averages imply a lopsided matchup, the expected score gets down-weighted by the same penalty curve used for live games.</p>
+            </div>
+
+            <div class="method-section">
+                <h3>Live &amp; final storytelling</h3>
+                <p>Responses from <code>/excitement/&lt;gamePk&gt;</code> carry more than a single number. The backend packages highlight and detractor badges (short-handed tallies, comeback surges, lead swings, fights, high scoring, ice tilt, low-action stretches), the running totals for each team, and the exact multipliers that shaped the raw score so the frontend can surface the same narrative as the API.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NHL Excite‑o‑Meter - Acknowledgments</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header" onclick="window.location.href='index.html'" style="cursor: pointer;">
+            <h1 class="title">NHL Excite‑o‑Meter</h1>
+            <p class="subtitle">Acknowledgments & Data Sources</p>
+        </div>
+
+        <div class="methodology-content">
+            <div class="method-section">
+                <h3>NHL api-web data</h3>
+                <p><strong>Both live excitement scores and previews rely entirely on the league’s public api-web feeds.</strong></p>
+                <p>The backend proxies those endpoints so the frontend avoids CORS hurdles while staying within the NHL’s rate limits and cache windows defined in <code>exciteo/config.py</code>. Every goal, hit, danger chance, fight, and broadcast listing you see here is sourced straight from the league.</p>
+                <p>Key endpoints the service depends on:</p>
+                <ul>
+                    <li><code>api-web.nhle.com/v1/gamecenter/&lt;gamePk&gt;/play-by-play</code> for detailed event streams</li>
+                    <li><code>api-web.nhle.com/v1/schedule/&lt;date&gt;</code> for upcoming matchups and game states</li>
+                    <li><code>api-web.nhle.com/v1/how-to-watch/&lt;gamePk&gt;</code> for broadcast availability</li>
+                    <li><code>api-web.nhle.com/v1/club-schedule-season/&lt;team&gt;/&lt;seasonId&gt;</code> so previews can rescore each club’s recent form</li>
+                </ul>
+                <p><strong>Thank you to the NHL for publishing rich, timely data that makes this project possible.</strong></p>
+            </div>
+
+            <div class="method-section">
+                <h3>Community &amp; Inspiration</h3>
+                <p>The broader hockey analytics community—public researchers, open-source tool builders, and sites such as <a href="https://moneypuck.com" target="_blank">MoneyPuck</a>—continues to influence how we think about pace, danger, and storytelling. Earlier versions experimented with community datasets; today the preview engine leans solely on NHL-provided data, but those ideas still shape the model and how we present “chance barrage” or “hits frenzy” narratives.</p>
+                <p>On the engineering side we owe a nod to the Python ecosystem: Flask and flask-cors power the API, <code>requests</code> handles NHL fetches, and <code>numpy</code>/<code>pandas</code> assist with batch analysis and tooling.</p>
+            </div>
+        </div>
+        
+        <div class="methodology-link">
+            <a href="methodology.html">How is excitement calculated?</a> | 
+            <a href="stats-guide.html">Stats Guide</a>
+            <div style="margin-top: 20px; font-style: italic; color: #888;">
+                Built with ❤️ for hockey fans everywhere
+            </div>
+        </div>
+    </div>
+</body>
+</html>

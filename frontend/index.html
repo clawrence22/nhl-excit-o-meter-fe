@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NHL Excite-o-Meter</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">NHL Excite-o-Meter</h1>
+            <p class="subtitle">Real-time game excitement analytics</p>
+        </header>
+
+        <div class="input-section">
+            <input type="date" id="gameDate" class="game-input">
+            <button id="loadGamesBtn" class="analyze-btn">LOAD GAMES</button>
+        </div>
+
+        <div id="gamesList" class="games-list hidden"></div>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Analyzing game excitement...</p>
+        </div>
+
+        <div id="results" class="results hidden">
+            <div class="excitement-card">
+                <div class="excitement-score">
+                    <span id="rawScore" class="score-value">0.0</span>
+                    <span class="score-label">RAW EXCITEMENT</span>
+                </div>
+                <div class="excitement-category">
+                    <span id="category" class="category-badge">-</span>
+                </div>
+            </div>
+
+            <div class="game-info">
+                <div class="info-item">
+                    <span class="info-label">PERIOD</span>
+                    <span id="period" class="info-value">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">TIME</span>
+                    <span id="timeRemaining" class="info-value">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">SCORE</span>
+                    <span id="score" class="info-value">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">MULTIPLIER</span>
+                    <span id="multiplier" class="info-value">-</span>
+                </div>
+            </div>
+
+            <div class="totals-section">
+                <h3>EVENT TOTALS</h3>
+                <div class="totals-grid">
+                    <div class="total-card">
+                        <div class="total-header">HOME</div>
+                        <div class="total-stats">
+                            <div class="stat"><span class="stat-label">Goals</span><span id="homeGoals" class="stat-value">0</span></div>
+                            <div class="stat"><span class="stat-label">HDC</span><span id="homeHdc" class="stat-value">0</span></div>
+                            <div class="stat"><span class="stat-label">MDC</span><span id="homeMdc" class="stat-value">0</span></div>
+                            <div class="stat"><span class="stat-label">Hits</span><span id="homeHits" class="stat-value">0</span></div>
+                            <div class="stat"><span class="stat-label">xG</span><span id="homeXg" class="stat-value">0.0</span></div>
+                        </div>
+                    </div>
+                    <div class="total-card">
+                        <div class="total-header">AWAY</div>
+                        <div class="total-stats">
+                            <div class="stat"><span class="stat-label">Goals</span><span id="awayGoals" class="stat-value">0</span></div>
+                            <div class="stat"><span class="stat-label">HDC</span><span id="awayHdc" class="stat-value">0</span></div>
+                            <div class="stat"><span class="stat-label">MDC</span><span id="awayMdc" class="stat-value">0</span></div>
+                            <div class="stat"><span class="stat-label">Hits</span><span id="awayHits" class="stat-value">0</span></div>
+                            <div class="stat"><span class="stat-label">xG</span><span id="awayXg" class="stat-value">0.0</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+        </div>
+
+        <div id="error" class="error hidden">
+            <p id="errorMessage">Something went wrong. Please try again.</p>
+        </div>
+        
+        <div class="methodology-link">
+            <a href="about.html">About</a> | 
+            <a href="methodology.html">How is excitement calculated?</a> | 
+            <a href="stats-guide.html">Stats Guide</a> | 
+            <a href="acknowledgments.html">Acknowledgments</a>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="batch-service.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
