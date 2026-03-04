@@ -63,7 +63,7 @@ variable "desired_count" {
 variable "health_check_path" {
   description = "ALB target group health check path"
   type        = string
-  default     = "/"
+  default     = "/health"
 }
 
 variable "container_image" {

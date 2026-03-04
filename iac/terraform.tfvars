@@ -22,7 +22,7 @@ container_image = "871806636838.dkr.ecr.us-east-1.amazonaws.com/nhl-excit-o-mete
 # App settings
 desired_count     = 1
 container_port    = 80
-health_check_path = "/"
+health_check_path = "/health"
 
 # Optional container env vars
 environment_variables = {
