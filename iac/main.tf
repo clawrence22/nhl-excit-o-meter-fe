@@ -121,6 +121,7 @@ resource "aws_lb_target_group" "app" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
+  deregistration_delay = 0
 
   health_check {
     path                = var.health_check_path
