@@ -55,12 +55,7 @@ jobs:
 
       - name: Terraform Init (S3 backend)
         run: |
-          terraform -chdir=iac init -input=false \
-            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
-            -backend-config="key=${{ secrets.TF_STATE_KEY }}" \
-            -backend-config="region=${{ env.AWS_REGION }}" \
-            -backend-config="dynamodb_table=${{ secrets.TF_LOCK_TABLE }}" \
-            -backend-config="encrypt=true"
+          terraform -chdir=iac init -input=false
 
       - name: Terraform Plan
         env:
