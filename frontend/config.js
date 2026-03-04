@@ -4,6 +4,6 @@ const CONFIG = {
     PRODUCTION: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1',
     
     API_BASE: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' 
-        ? 'http://nhl-excite-o-meter-be:5001'
+        ? '/api'
         : 'http://localhost:5001'
 };
