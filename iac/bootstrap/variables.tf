@@ -9,11 +9,6 @@ variable "tf_state_bucket_name" {
   type        = string
 }
 
-variable "tf_lock_table_name" {
-  description = "DynamoDB table name for Terraform state locking"
-  type        = string
-}
-
 variable "environment" {
   description = "Environment tag value"
   type        = string
