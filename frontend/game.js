@@ -237,9 +237,17 @@ class GameAnalyzer {
        {
          badges.push({icon: '🚨', label: 'High-scoring Game', type: "highlight"});
        }
-       if (modifiers["ice-tilt"])
+       if (modifiers["chances_ice_tilt"])
        {
-         badges.push({icon: '⚖️', label: 'Ice Tilt', type: "detractor"});
+         badges.push({icon: '⚖️', label: 'Ice Tilt (Chances)', type: "detractor"});
+       }
+       if (modifiers["goals_ice_tilt"])
+       {
+         badges.push({icon: '⚖️', label: 'Ice Tilt (Goals)', type: "detractor"});
+       }
+       if (modifiers["xgoals_ice_tilt"])
+       {
+         badges.push({icon: '⚖️', label: 'Ice Tilt (xGoals)', type: "detractor"});
        }
        if (modifiers["next-goal-wins"])
        {
