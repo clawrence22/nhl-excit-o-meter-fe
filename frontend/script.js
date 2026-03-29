@@ -246,7 +246,7 @@ class ExcitementAnalyzer {
 
         const statusLabel = (isFinal ? 'FINAL' : this.formatPeriod(game.period));
 
-        const timeLabel = (isPreview ? "" : game.period_time_remaining);
+        const timeLabel = (isPreview ? game.start_time : game.period_time_remaining);
 
 
         scoreEl.classList.remove('hidden');
