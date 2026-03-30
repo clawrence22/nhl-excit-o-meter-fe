@@ -248,6 +248,8 @@ class ExcitementAnalyzer {
 
         const timeLabel = (isPreview ? game.start_time : game.period_time_remaining);
 
+        console.log("Status Label:", statusLabel, "Time Label:", timeLabel)
+
 
         scoreEl.classList.remove('hidden');
         const awayScoreVal = Number(game.away_goals);
