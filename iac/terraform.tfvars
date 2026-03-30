@@ -16,7 +16,7 @@ service_subnet_ids = [
 ]
 
 # Existing ECR image
-container_image = "871806636838.dkr.ecr.us-east-1.amazonaws.com/nhl-excit-o-meter-fe:1.0.0"
+container_image = "871806636838.dkr.ecr.us-east-1.amazonaws.com/nhl-excit-o-meter-fe:88383d77650a91e212d86bd8547ac27c1de1d7d5"
 
 # App settings
 desired_count     = 1
