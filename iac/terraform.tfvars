@@ -12,7 +12,7 @@ alb_subnet_ids = [
 
 # Existing ECS task subnets (usually private)
 service_subnet_ids = [
-  "subnet-0de4c6f94d02724eb"
+  "subnet-036d25c00629af481"
 ]
 
 # Existing ECR image
