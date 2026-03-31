@@ -140,8 +140,8 @@ class GameAnalyzer {
             document.getElementById('periodStatus').textContent = periodText;
             document.getElementById('timeStatus').textContent = timeRemaining;
 
-            var away_data = {"goals": game.away_goals, "hdc": game.away_hdc, "mdc": game.away_mdc, "hits": game.away_hits, "xg": game.away_xg.toFixed(1)};
-            var home_data = {"goals": game.home_goals, "hdc": game.home_hdc, "mdc": game.home_mdc, "hits": game.home_hits, "xg": game.home_xg.toFixed(1)}; 
+            var away_data = {"goals": game.away_goals, "hdc": game.away_hdc, "mdc": game.away_mdc, "hits": game.away_hits};
+            var home_data = {"goals": game.home_goals, "hdc": game.home_hdc, "mdc": game.home_mdc, "hits": game.home_hits}; 
 
             this.updateTotals('home', home_data);
             this.updateTotals('away', away_data);
@@ -152,7 +152,6 @@ class GameAnalyzer {
         document.getElementById(`${team}Hdc`).textContent = totals.hdc;
         document.getElementById(`${team}Mdc`).textContent = totals.mdc;
         document.getElementById(`${team}Hits`).textContent = totals.hits;
-        document.getElementById(`${team}Xg`).textContent = totals.xg;
     }
 
 
@@ -244,10 +243,6 @@ class GameAnalyzer {
        if (modifiers["goals_ice_tilt"])
        {
          badges.push({icon: '⚖️', label: 'Ice Tilt (Goals)', type: "detractor"});
-       }
-       if (modifiers["xgoals_ice_tilt"])
-       {
-         badges.push({icon: '⚖️', label: 'Ice Tilt (xGoals)', type: "detractor"});
        }
        if (modifiers["next-goal-wins"])
        {

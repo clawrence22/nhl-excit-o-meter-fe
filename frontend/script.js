@@ -322,10 +322,6 @@ class ExcitementAnalyzer {
        {
          badges.push({icon: '⚖️', label: 'Ice Tilt (Goals)', type: "detractor"});
        }
-       if (modifiers["xgoals_ice_tilt"])
-       {
-         badges.push({icon: '⚖️', label: 'Ice Tilt (xGoals)', type: "detractor"});
-       }
        if (modifiers["next-goal-wins"])
        {
          badges.push({icon: '🏆', label: 'Next Goal Wins', type: "highlight"});

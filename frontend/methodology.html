@@ -25,7 +25,6 @@
                     <li><strong>High Danger Chances (HDC):</strong> 0.42 points.</li>
                     <li><strong>Medium Danger Chances (MDC):</strong> 0.28 points.</li>
                     <li><strong>Hits:</strong> 0.10 points with an anti-spam guard—roughly eight hits per simulated minute get full value, then contributions drop to 25% via <code>HITS_OVERSAT_SCALE</code>.</li>
-                    <li><strong>Expected Goals (xG):</strong> 0.28 × the xG proxy derived from shot distance and type.</li>
                 </ul>
                 <p>Shot danger buckets follow the backend geometry helper: ≤20 ft is high danger, 21–35 ft is medium danger, anything deeper is low danger.</p>
             </div>
@@ -83,7 +82,7 @@
             <div class="method-section">
                 <h3>Preview model</h3>
                 <p>The <code>PreviewModel</code> in the backend re-scores up to the last 15 completed regular-season/playoff games for each team (1 ÷ game-order weighting so fresh games count most). That weighted excitement total is compared to a 9.0 baseline, clipped between 0.90× and 1.10×, averaged across both clubs, and scaled by 0.45 to fit the live score range.</p>
-                <p>Recent form metrics (goals, HDC, MDC, hits, xG) reuse the same weights to build a projected excitement contribution, plus storyline hooks:</p>
+                <p>Recent form metrics (goals, HDC, MDC, hits) reuse the same weights to build a projected excitement contribution, plus storyline hooks:</p>
                 <ul>
                     <li><strong>High scoring:</strong> combined recent goals ≥5.7.</li>
                     <li><strong>Chance barrage:</strong> combined high-danger chances ≥40.</li>

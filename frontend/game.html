@@ -83,11 +83,6 @@
                         <div class="away-stat" id="awayHits">0</div>
                         <div class="home-stat" id="homeHits">0</div>
                     </div>
-                    <div class="stat-row">
-                        <div class="stat-category">xGoals <span class="info-icon" onclick="showXgTooltip()">?</span></div>
-                        <div class="away-stat" id="awayXg">0.0</div>
-                        <div class="home-stat" id="homeXg">0.0</div>
-                    </div>
                 </div>
             </div>
 
@@ -165,21 +160,6 @@
                 • Must result in the opponent losing possession or being knocked off balance<br>
                 • Tracked by official NHL statisticians during the game<br><br>
                 <strong>Excitement value:</strong> 0.1 points per hit (with anti-spam protection)
-            `;
-            document.getElementById('contextModalContent').innerHTML = content;
-            document.getElementById('contextModal').style.display = 'block';
-        }
-        
-        function showXgTooltip() {
-            const content = `
-                <strong>Expected Goals (xG)</strong><br><br>
-                A statistical measure of shot quality based on historical data.<br><br>
-                <strong>How it's calculated:</strong><br>
-                • Shot distance from goal (closer = higher xG)<br>
-                • Shot type (deflections, tips carry extra weight)<br>
-                • Shot angle and game situation<br>
-                • Based on thousands of similar shots and their success rates<br><br>
-                <strong>Example:</strong> A shot from the slot might have 0.15 xG (15% chance of scoring)
             `;
             document.getElementById('contextModalContent').innerHTML = content;
             document.getElementById('contextModal').style.display = 'block';
