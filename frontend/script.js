@@ -11,8 +11,16 @@ class ExcitementAnalyzer {
         this.initializeEventListeners();
     }
 
-    formatPeriod(period) 
+    formatPeriod(period,isFinal) 
     {
+        if(isFinal)
+        {
+            if (period > 3)
+            {
+                return "FINAL/OT"
+            }
+            return "FINAL"
+        }
         switch (period) {
             case 'Preview':
                 return 'Preview';
@@ -244,7 +252,7 @@ class ExcitementAnalyzer {
         const isPreview = (game.period === "Preview")
         const isFuture = false;
 
-        const statusLabel = (isFinal ? 'FINAL' : this.formatPeriod(game.period));
+        let statusLabel = this.formatPeriod(game.period,isFinal);
 
         const timeLabel = (isPreview ? game.start_time : game.period_time_remaining);
 
