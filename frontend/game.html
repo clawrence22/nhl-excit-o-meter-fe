@@ -28,33 +28,31 @@
             <div class="game-header">
                 <div class="team-matchup">
                     <div class="away-team">
-                        <img id="awayLogo" src="" alt="" class="team-logo-large">
                         <div class="team-info">
+                            <img id="awayLogo" src="" alt="" class="team-logo-large">
                             <div class="team-name" id="awayTeamName">Away Team</div>
-                            <div class="team-record" id="awayRecord"></div>
+                            <!-- <div class="team-score" id="awayTeamScore">0</div> -->
+                            <div class="game-excitement" id="awayExcitement"></div>
                         </div>
-                        <div class="team-score" id="awayTeamScore">0</div>
                     </div>
                     <div class="game-status">
                         <div class="period-time">
                             <div class="period-status" id="periodStatus">-</div>
                             <div class="time-status" id="timeStatus">-</div>
                         </div>
-                        <div class="category-badge" id="category">Snoozer</div>
+                        <div class="game-excitement" id="gameExcitement"></div>
+                        <div class="excitement-summary" id="excitement-summary"></div>
                     </div>
                     <div class="home-team">
-                        <div class="team-score" id="homeTeamScore">0</div>
                         <div class="team-info">
+                            <img id="homeLogo" src="" alt="" class="team-logo-large">
                             <div class="team-name" id="homeTeamName">Home Team</div>
-                            <div class="team-record" id="homeRecord"></div>
+                            <!-- <div class="team-score" id="homeTeamScore">0</div> -->
+                            <div class="game-excitement" id="homeExcitement"></div>
                         </div>
-                        <img id="homeLogo" src="" alt="" class="team-logo-large">
                     </div>
                 </div>
             </div>
-
-
-
             <div class="stats-section">
                 <h3 id="statsTitle">Game Statistics</h3>
                 <div class="stats-table">
@@ -85,19 +83,6 @@
                     </div>
                 </div>
             </div>
-
-
-            <div class="active-modifiers-section" id="activeModifiersSection" style="display: none;">
-                <h3>Active Modifiers</h3>
-                <div class="active-modifiers" id="activeModifiers"></div>
-            </div>
-
-            <div class="game-summary-section" id="gameSummarySection" style="display: none;">
-                <h3>Game Summary</h3>
-                <div class="game-summary" id="gameSummary"></div>
-            </div>
-
-
         </div>
         
         <div class="methodology-link">
@@ -122,102 +107,9 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <script src="config.js"></script>
-    <script src="batch-service.js"></script>
     <script src="game.js"></script>
-    <script>
-        function showContextTooltip() {
-            const multiplier = document.getElementById('multiplier').textContent;
-            const gameAnalyzer = window.gameAnalyzer;
-            const reasons = gameAnalyzer && gameAnalyzer.multiplierReasons ? gameAnalyzer.multiplierReasons : [];
-            
-            let reasonsText = '';
-            if (reasons.length > 0) {
-                reasonsText = '<strong>Active multipliers:</strong><br>' + reasons.map(r => `• ${r}`).join('<br>') + '<br><br>';
-            }
-            
-            const content = `
-                <strong>Context Multiplier: ${multiplier}</strong><br><br>
-                ${reasonsText}
-                This multiplier amplifies event excitement based on game situation.<br><br>
-                <strong>Possible components:</strong><br>
-                • 3rd Period: 1.3× multiplier<br>
-                • Overtime: 1.5× multiplier<br>
-                • Last 5 minutes: 1.42× multiplier (plus OT potential bonus)<br>
-                • Close score: Higher multiplier for tight games<br><br>
-                <strong>What it means:</strong><br>
-                Events in this game situation are ${multiplier} times more exciting than the base value.
-            `;
-            document.getElementById('contextModalContent').innerHTML = content;
-            document.getElementById('contextModal').style.display = 'block';
-        }
-        
-        function showHitsTooltip() {
-            const content = `
-                <strong>Hits</strong><br><br>
-                Physical body checks delivered by players during the game.<br><br>
-                <strong>How it's calculated:</strong><br>
-                • Counted when a player makes legal body contact with an opponent<br>
-                • Must result in the opponent losing possession or being knocked off balance<br>
-                • Tracked by official NHL statisticians during the game<br><br>
-                <strong>Excitement value:</strong> 0.1 points per hit (with anti-spam protection)
-            `;
-            document.getElementById('contextModalContent').innerHTML = content;
-            document.getElementById('contextModal').style.display = 'block';
-        }
-        
-        function showHdcTooltip() {
-            const content = `
-                <strong>High Danger Chances (HDC)</strong><br><br>
-                Shots taken from high-scoring areas close to the net.<br><br>
-                <strong>How it's calculated:</strong><br>
-                • Shots from within 12 feet of the goal<br>
-                • Prime scoring areas in the slot and crease<br>
-                • Higher likelihood of becoming goals<br>
-                • Tracked for all shot attempts (goals, saves, misses, blocks)<br><br>
-                <strong>Excitement value:</strong> 0.8 points per HDC
-            `;
-            document.getElementById('contextModalContent').innerHTML = content;
-            document.getElementById('contextModal').style.display = 'block';
-        }
-        
-        function showMdcTooltip() {
-            const content = `
-                <strong>Medium Danger Chances (MDC)</strong><br><br>
-                Shots taken from moderate scoring areas around the net.<br><br>
-                <strong>How it's calculated:</strong><br>
-                • Shots from 12-30 feet of the goal<br>
-                • Areas with decent but not elite scoring chances<br>
-                • Moderate likelihood of becoming goals<br>
-                • Tracked for all shot attempts (goals, saves, misses, blocks)<br><br>
-                <strong>Excitement value:</strong> 0.4 points per MDC
-            `;
-            document.getElementById('contextModalContent').innerHTML = content;
-            document.getElementById('contextModal').style.display = 'block';
-        }
-        
-        function showSeasonTooltip() {
-            const content = `
-                <strong>Previous Season Data</strong><br><br>
-                Using previous season statistics because it's too early in the current season for reliable data.<br><br>
-                <strong>Why previous season?</strong><br>
-                • Current season has insufficient games played<br>
-                • Previous season provides more stable averages<br>
-                • Better prediction accuracy for excitement scores
-            `;
-            document.getElementById('contextModalContent').innerHTML = content;
-            document.getElementById('contextModal').style.display = 'block';
-        }
-        
-        function closeContextModal() {
-            document.getElementById('contextModal').style.display = 'none';
-        }
-        
-        window.onclick = function(event) {
-            const modal = document.getElementById('contextModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.14.1/js/anychart-core.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.14.1/js/anychart-linear-gauge.min.js"></script>
 </body>
 </html>

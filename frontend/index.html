@@ -29,13 +29,7 @@
 
         <div id="results" class="results hidden">
             <div class="excitement-card">
-                <div class="excitement-score">
-                    <span id="rawScore" class="score-value">0.0</span>
-                    <span class="score-label">RAW EXCITEMENT</span>
-                </div>
-                <div class="excitement-category">
-                    <span id="category" class="category-badge">-</span>
-                </div>
+                <div class="game-excitement" id="gameExcitement"></div>
             </div>
 
             <div class="game-info">
@@ -56,34 +50,6 @@
                     <span id="multiplier" class="info-value">-</span>
                 </div>
             </div>
-
-            <div class="totals-section">
-                <h3>EVENT TOTALS</h3>
-                <div class="totals-grid">
-                    <div class="total-card">
-                        <div class="total-header">HOME</div>
-                        <div class="total-stats">
-                            <div class="stat"><span class="stat-label">Goals</span><span id="homeGoals" class="stat-value">0</span></div>
-                            <div class="stat"><span class="stat-label">HDC</span><span id="homeHdc" class="stat-value">0</span></div>
-                            <div class="stat"><span class="stat-label">MDC</span><span id="homeMdc" class="stat-value">0</span></div>
-                            <div class="stat"><span class="stat-label">Hits</span><span id="homeHits" class="stat-value">0</span></div>
-                        </div>
-                    </div>
-                    <div class="total-card">
-                        <div class="total-header">AWAY</div>
-                        <div class="total-stats">
-                            <div class="stat"><span class="stat-label">Goals</span><span id="awayGoals" class="stat-value">0</span></div>
-                            <div class="stat"><span class="stat-label">HDC</span><span id="awayHdc" class="stat-value">0</span></div>
-                            <div class="stat"><span class="stat-label">MDC</span><span id="awayMdc" class="stat-value">0</span></div>
-                            <div class="stat"><span class="stat-label">Hits</span><span id="awayHits" class="stat-value">0</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-
         </div>
 
         <div id="error" class="error hidden">
@@ -99,7 +65,9 @@
     </div>
 
     <script src="config.js"></script>
-    <script src="batch-service.js"></script>
-    <script src="script.js"></script>
+    <script src="games.js"></script>
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.14.1/js/anychart-core.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.14.1/js/anychart-linear-gauge.min.js"></script>
 </body>
 </html>

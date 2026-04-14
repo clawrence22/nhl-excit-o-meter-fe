@@ -157,7 +157,6 @@ body {
 .game-status {
     color: #888;
     font-size: 0.9rem;
-    text-transform: uppercase;
 }
 
 .broadcast-info {
@@ -188,20 +187,28 @@ body {
 }
 
 .game-badges {
-    display: flex;
+    display: grid ;
     gap: 4px;
     margin-top: 5px;
     flex-wrap: wrap;
+}
+
+
+.excitement-summary{
+    display: grid;
+    grid-auto-flow: column;
+    align-self: center;
+    column-gap: 10px;
 }
 
 .game-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.85rem;
-    padding: 4px 8px;
+    font-size: 12px;
+    padding: 5px 5px;
     border-radius: 6px;
-    cursor: help;
+    margin-top: "10px";
     line-height: 1;
     font-weight: 600;
     color: #fff;
@@ -865,11 +872,6 @@ body {
     font-weight: bold;
     color: #fff;
     margin-bottom: 2px;
-}
-
-.team-record {
-    font-size: 0.8rem;
-    color: #888;
 }
 
 .team-score {
