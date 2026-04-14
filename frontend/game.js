@@ -86,13 +86,13 @@ class GameAnalyzer {
         document.getElementById('awayLogo').src = `../assets/${game.away_tla}_light.svg`;
         document.getElementById('awayTeamName').textContent = game.away_tla;
         document.getElementById('awayStatsHeader').textContent = game.away_tla;
-        this.createGuage('awayExcitement', game.away_excitement,game.away_team_level);
+        this.createGuage('awayExcitement', game.away_excitement,game.away_excitement_level);
         
         
         document.getElementById('homeLogo').src = `../assets/${game.home_tla}_light.svg`;
         document.getElementById('homeTeamName').textContent = game.home_tla;
         document.getElementById('homeStatsHeader').textContent = game.home_tla;
-        this.createGuage('homeExcitement', game.home_excitement,game.home_team_level);
+        this.createGuage('homeExcitement', game.home_excitement,game.home_excitement_level);
 
         // Live game - format period with ordinal suffix
         let periodText = "Preview"
