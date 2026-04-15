@@ -18,6 +18,12 @@ resource "aws_ecs_cluster" "app" {
   name = "${var.name}-cluster"
 }
 
+resource "aws_ecs_cluster_capacity_providers" "spot" {
+  cluster_name = aws_ecs_cluster.app.name
+  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+}
+
+
 resource "aws_iam_role" "task_execution" {
   name = "${var.name}-task-execution-role"
 
@@ -213,11 +219,22 @@ resource "aws_ecs_service" "app" {
   cluster                = aws_ecs_cluster.app.id
   task_definition        = aws_ecs_task_definition.app.arn
   desired_count          = var.desired_count
-  launch_type            = "FARGATE"
   enable_execute_command = true
 
   deployment_minimum_healthy_percent = 50
   deployment_maximum_percent         = 200
+
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE"
+    base = 0
+    weight = 0
+  }
+
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+    base = 0
+    weight = 1
+  }
 
   network_configuration {
     assign_public_ip = true
