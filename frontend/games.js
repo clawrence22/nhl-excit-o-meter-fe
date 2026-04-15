@@ -112,7 +112,7 @@ class ExcitementAnalyzer {
 
         var scale = anychart.scales.linear();
         scale.minimum(10);
-        scale.maximum(90);
+        scale.maximum(100);
         gauge.scale(scale);
 
         gauge.data([excitement_score]);
