@@ -25,7 +25,7 @@ health_check_path = "/health"
 
 # Optional container env vars
 environment_variables = {
-  # API_BASE = "https://api.example.com"
+  BACKEND_HOST = "nhl-excite-o-meter-be"
 }
 
 # Existing Cloud Map namespace ARN for Service Connect
