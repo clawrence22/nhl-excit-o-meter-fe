@@ -41,7 +41,7 @@
                             <div class="time-status" id="timeStatus">-</div>
                         </div>
                         <div class="game-excitement" id="gameExcitement"></div>
-                        <div class="excitement-summary" id="excitement-summary"></div>
+                        <div class="excitement-summary" id="game-excitement-summary"></div>
                     </div>
                     <div class="home-team">
                         <div class="team-info">
@@ -61,23 +61,24 @@
                         <div class="away-header" id="awayStatsHeader">Away</div>
                         <div class="home-header" id="homeStatsHeader">Home</div>
                     </div>
-                    <div class="stat-row">
-                        <div class="stat-category">Goals</div>
+                    <div class="stat-row normal"id="stat-goal">
+                        <div class="stat-category" id="cat-goal">Goals<span class="stat-badges" id="badges-goal"></span></div>
+                        
                         <div class="away-stat" id="awayGoals">0</div>
                         <div class="home-stat" id="homeGoals">0</div>
                     </div>
-                    <div class="stat-row">
-                        <div class="stat-category">High Danger Chances <span class="info-icon" onclick="showHdcTooltip()">?</span></div>
+                    <div class="stat-row normal"id="stat-hdc">
+                        <div class="stat-category" id="cat-hdc">High Danger Chances<span class="stat-badges" id="badges-hdc"></span></div>
                         <div class="away-stat" id="awayHdc">0</div>
                         <div class="home-stat" id="homeHdc">0</div>
                     </div>
-                    <div class="stat-row">
-                        <div class="stat-category">Medium Danger Chances <span class="info-icon" onclick="showMdcTooltip()">?</span></div>
+                    <div class="stat-row normal"id="stat-mdc">
+                        <div class="stat-category" id="cat-mdc">Medium Danger Chances<span class="stat-badges" id="badges-mdc"></span></div>
                         <div class="away-stat" id="awayMdc">0</div>
                         <div class="home-stat" id="homeMdc">0</div>
                     </div>
-                    <div class="stat-row">
-                        <div class="stat-category">Hits <span class="info-icon" onclick="showHitsTooltip()">?</span></div>
+                    <div class="stat-row normal"id="stat-hits">
+                        <div class="stat-category" id="cat-hits">Hits<span class="stat-badges" id="badges-hits"></span></div>
                         <div class="away-stat" id="awayHits">0</div>
                         <div class="home-stat" id="homeHits">0</div>
                     </div>
@@ -94,13 +95,6 @@
         
         <div class="debug-info">
             Game ID: <span id="debugGameId"></span>
-        </div>
-    </div>
-
-    <div id="contextModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeContextModal()">&times;</span>
-            <div id="contextModalContent"></div>
         </div>
     </div>
 

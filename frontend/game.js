@@ -2,6 +2,7 @@ class GameAnalyzer {
     constructor() {
         this.apiBase = CONFIG.API_BASE;
         this.gameId = this.getGameIdFromUrl();
+        this.gameDate = this.getGameDateFromUrl();
         this.multiplierReasons = [];
         this.scheduleData = null;
         this.lastTeamFormWarmed = null;
@@ -28,7 +29,7 @@ class GameAnalyzer {
     }
 
     async loadGameInfo() {
-        const response = await fetch(`${this.apiBase}/excitement_game/${this.gameId}`);
+        const response = await fetch(`${this.apiBase}/excitement_game?id=${this.gameId}&date=${this.gameDate}`);
         if (!response.ok) {
             throw new Error(`Failed to fetch schedule: ${response.status}`);
         }
@@ -83,13 +84,13 @@ class GameAnalyzer {
     updateGameHeader(game) {
         console.log("SingleGameObj:",game)
         // Update team matchup header
-        document.getElementById('awayLogo').src = `../assets/${game.away_tla}_light.svg`;
+        document.getElementById('awayLogo').src = `../assets/teams/${game.away_tla}_light.svg`;
         document.getElementById('awayTeamName').textContent = game.away_tla;
         document.getElementById('awayStatsHeader').textContent = game.away_tla;
         this.createGuage('awayExcitement', game.away_excitement,game.away_excitement_level);
         
         
-        document.getElementById('homeLogo').src = `../assets/${game.home_tla}_light.svg`;
+        document.getElementById('homeLogo').src = `../assets/teams/${game.home_tla}_light.svg`;
         document.getElementById('homeTeamName').textContent = game.home_tla;
         document.getElementById('homeStatsHeader').textContent = game.home_tla;
         this.createGuage('homeExcitement', game.home_excitement,game.home_excitement_level);
@@ -107,8 +108,8 @@ class GameAnalyzer {
             }
 
             timeRemaining = game.period_time_remaining
-            this.displayGameModifiers(game.excitement_modifiers);
-        }   
+        }
+        this.displayGameModifiers(game.excitement_modifiers,game.playoffs);
         
         document.getElementById('periodStatus').textContent = periodText;
         document.getElementById('timeStatus').textContent = timeRemaining;
@@ -118,6 +119,11 @@ class GameAnalyzer {
     getGameIdFromUrl() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('id');
+    }
+
+    getGameDateFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('gameDate');
     }
 
    
@@ -139,9 +145,6 @@ class GameAnalyzer {
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('error').classList.add('hidden');
         document.getElementById('results').classList.remove('hidden');
-    
-
-        console.log("Game data: ",game)
 
         const isPreview = (game.period === "Preview")
         
@@ -164,7 +167,7 @@ class GameAnalyzer {
 
             if (isPreview)
             {
-                statsTitleEl.textContent = 'Season Averages';
+                statsTitleEl.textContent = 'Average Over Last 10 Games';
             }
         }
 
@@ -173,6 +176,7 @@ class GameAnalyzer {
 
             this.updateTotals('home', home_data);
             this.updateTotals('away', away_data);
+            this.displayStatsModifiers(game.excitement_modifiers);
         }
 
     updateTotals(team, totals) {
@@ -183,67 +187,111 @@ class GameAnalyzer {
     }
 
 
+    updateStateRowModifier(rowId, modifier) {
+        var rowEl =  document.getElementById(rowId);
+        if (rowEl.classList.contains("normal"))
+        {
+            rowEl.classList.add(modifier);
+            rowEl.classList.remove("normal");
+        }
+    }
 
-    displayGameModifiers(modifiers) {
+    addBadge(rowId, label, imageFile,modifier) {
+        var badgesEl = document.getElementById(rowId);
+
+        var badgeEl = document.createElement('div');
+        badgeEl.classList.add("stat-badge");
+        badgeEl.classList.add(modifier);
+
+        var labelSpan = document.createElement('span');
+        labelSpan.classList.add("badge-label");
+        labelSpan.textContent = label;
+
+        var imgEl = document.createElement('img');
+        imgEl.classList.add("badge-icon");
+        imgEl.src = `assets/modifiers/${imageFile}.svg`;
+
+        badgeEl.appendChild(imgEl);
+        badgeEl.appendChild(labelSpan);
+
+        badgesEl.appendChild(badgeEl);
+    }
         
-        var badgesEl =  document.getElementById("excitement-summary")
-        
-        const badges = []
+    displayStatsModifiers(modifiers) 
+    {
 
         if (modifiers["close-game"])
         {
-            badges.push({icon: '😰', label: 'Close Game',type:"highlight"});
+            this.updateStateRowModifier("stat-goal", "highlight");
+            this.addBadge("badges-goal", "Close Game","close_game","highlight");
+           
         }
-        if (modifiers["hit-fest"])
-        {
-            badges.push({icon: '💥', label: 'Hits Fest', type: "highlight"});
-        }
+        
         if (modifiers["high-scoring"])
         {
-            badges.push({icon: '🚨', label: 'High-scoring Game', type: "highlight"});
+            this.updateStateRowModifier("stat-goal", "highlight");
+            this.addBadge("badges-goal", "High Scoring Game","high_score","highlight");
         }
-        if (modifiers["chances_ice_tilt"])
+
+         if (modifiers["goals_ice_tilt"])
         {
-            badges.push({icon: '⚖️', label: 'Ice Tilt (Chances)', type: "detractor"});
+            this.updateStateRowModifier("stat-goal", "detractor");
+            this.addBadge("badges-goal", "Goals Ice Tilt","ice_tilt","detractor");
         }
-        if (modifiers["goals_ice_tilt"])
-        {
-            badges.push({icon: '⚖️', label: 'Ice Tilt (Goals)', type: "detractor"});
-        }
-        if (modifiers["next-goal-wins"])
-        {
-            badges.push({icon: '🏆', label: 'Next Goal Wins', type: "highlight"});
-        }
+        
         if (modifiers["frenzy"])
         {
-            badges.push({icon: '🔥', label: 'Chance Frenzy', type: "highlight"});
+            this.updateStateRowModifier("stat-hdc", "highlight");
+            this.addBadge("badges-hdc", "Chances Frenzy","frenzy","highlight");
+
+            this.updateStateRowModifier("stat-mdc", "highlight");
+            this.addBadge("badges-mdc", "Chances Frenzy","frenzy","highlight");
         }
+       
+        if (modifiers["chances_ice_tilt"])
+        {
+            this.updateStateRowModifier("stat-hdc", "detractor");
+            this.addBadge("badges-hdc", "Chances Ice Tilt","ice_tilt","detractor");
+            this.updateStateRowModifier("stat-mdc", "detractor");
+            this.addBadge("badges-mdc", "Chances Ice Tilt","ice_tilt","detractor");
+        }
+       
+    
+    }
 
+    displayGameModifiers(modifiers,playoffs) {
+        
+        var badgesEl =  document.getElementById("game-excitement-summary");
+        const badges = [];
+        if (modifiers["next-goal-wins"]) badges.push({icon: '<img src="assets/modifiers/next_goal_wins.svg" alt="Next Goal Wins" />', label: 'Next Goal Wins', imageFile: "next_goal_wins", type: "highlight"});
+        if (playoffs["is_playoff"]) badges.push({icon: '<img src="assets/modifiers/playoffs.svg" alt="Playoff Game" />', label: 'Playoff Game', imageFile: "playoffs", type: "highlight"});
+        if (playoffs["game_seven"]) badges.push({icon: '<img src="assets/modifiers/game_seven.svg" alt="Game Seven" />', label: 'Game Seven', imageFile: "game_seven", type: "highlight"});
+        if (playoffs["elimination_game"] && !playoffs["game_seven"]) badges.push({icon: '<img src="assets/modifiers/elimination_game.svg" alt="Elimination Game" />', label: 'Elimination Game', imageFile: "elimination_game", type: "highlight"});
+        if (playoffs["cup_final"]) badges.push({icon: '<img src="assets/modifiers/cup_final.svg" alt="Cup Final" />', label: 'Cup Final', imageFile: "cup_final", type: "highlight"});
 
-
-
+        console.log("Game Modifiers:", modifiers);
+        console.log("Derived Badges:", badges);
         badges.forEach((badge) => {
             // Create the div element
-            const badgeDiv = document.createElement('div');
+            var badgeEl = document.createElement('div');
 
-            // Add content and styles/classes
-            badgeDiv.className = `game-badge ${badge.type}`;
-            badgeDiv.id = `${badge.label}`; 
-            
-            const badgeIconSpan = document.createElement('span');
-            badgeIconSpan.className = 'badge-icon';
-            badgeIconSpan.textContent = `${badge.icon}`;
-            badgeDiv.append(badgeIconSpan);
+            badgeEl.classList.add("stat-badge");
+            badgeEl.classList.add(badge.type);
 
-            const badgelabelSpan = document.createElement('span');
-            badgelabelSpan.className = 'badge-label';
-            badgelabelSpan.textContent = `${badge.label}`;
-            badgeDiv.append(badgelabelSpan);
+            var labelSpan = document.createElement('span');
+            labelSpan.classList.add("badge-label");
+            labelSpan.textContent = badge.label;
 
-            // Append to the container
-            badgesEl.appendChild(badgeDiv);
-            });
-        }
+            var imgEl = document.createElement('img');
+            imgEl.classList.add("badge-icon");
+            imgEl.src = `assets/modifiers/${badge.imageFile}.svg`;
+
+            badgeEl.appendChild(imgEl);
+            badgeEl.appendChild(labelSpan);
+
+            badgesEl.appendChild(badgeEl);
+        });
+    }
 }
 
 

@@ -1,0 +1,13 @@
+<svg width="22" height="20" viewBox="0 0 22 20" xmlns="http://www.w3.org/2000/svg">
+  <!-- Round 1 to Round 2: Top -->
+  <path d="M2,4 H7 V10 H2" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="7" y1="7" x2="11" y2="7" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Round 1 to Round 2: Bottom -->
+  <path d="M2,14 H7 V20 H2" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="7" y1="17" x2="11" y2="17" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Round 2 to Champion -->
+  <path d="M11,7 H16 V17 H11" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="16" y1="12" x2="22" y2="12" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+</svg>
