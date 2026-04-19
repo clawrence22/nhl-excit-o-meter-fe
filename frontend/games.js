@@ -154,6 +154,8 @@ class ExcitementAnalyzer {
     const gamesList = document.getElementById('gamesList');
     gamesList.classList.remove('hidden');
     gamesList.innerHTML = '';
+    
+    games = new Map([...games.entries()].sort());
 
     console.log("Displaying Games:", games);
 
