@@ -102,7 +102,7 @@ class ExcitementAnalyzer {
         return games;
     }
 
-    createGuage(containerId, excitement_score,excitement_level) {
+    createExcitementGuage(containerId, excitement_score,excitement_level) {
 
         var gauge = anychart.gauges.linear();
         gauge.layout('horizontal');
@@ -222,6 +222,7 @@ class ExcitementAnalyzer {
         if (modifiers["goals_ice_tilt"]) badges.push({icon: '<img src="assets/modifiers/ice_tilt.svg" alt="Ice Tilt (Goals)" />', label: 'Ice Tilt (Goals)', type: "detractor"});
         if (modifiers["next-goal-wins"]) badges.push({icon: '<img src="assets/modifiers/next_goal_wins.svg" alt="Next Goal Wins" />', label: 'Next Goal Wins', type: "highlight"});
         if (modifiers["frenzy"]) badges.push({icon: '<img src="assets/modifiers/frenzy.svg" alt="Chance Frenzy" />', label: 'Chance Frenzy', type: "highlight"});
+        if (modifiers["back_and_forth"]) badges.push({icon: '<img src="assets/modifiers/back_and_forth.svg" alt="Back and Forth" />', label: 'Back and Forth', imageFile: "back_and_forth", type: "highlight"});
         if (playoffs["is_playoff"]) badges.push({icon: '<img src="assets/modifiers/playoffs.svg" alt="Playoff Game" />', label: 'Playoff Game', type: "highlight"});
         if (playoffs["game_seven"]) badges.push({icon: '<img src="assets/modifiers/game_seven.svg" alt="Game Seven" />', label: 'Game Seven', type: "highlight"});
         if (playoffs["elimination_game"] && !playoffs["game_seven"]) badges.push({icon: '<img src="assets/modifiers/elimination_game.svg" alt="Elimination Game" />', label: 'Elimination Game', type: "highlight"});
@@ -280,7 +281,7 @@ class ExcitementAnalyzer {
 
         // create gauge AFTER DOM exists
         setTimeout(() => {
-            this.createGuage(`gameExcitement-${id}`, game.excitement_score, game.excitement_level);
+            this.createExcitementGuage(`gameExcitement-${id}`, game.excitement_score, game.excitement_level);
         }, 0);
 
         gamesList.appendChild(gameCard);
