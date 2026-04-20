@@ -85,13 +85,13 @@ class GameAnalyzer {
         console.log("SingleGameObj:",game)
         // Update team matchup header
         document.getElementById('awayLogo').src = `../assets/teams/${game.away_tla}_light.svg`;
-        document.getElementById('awayTeamName').textContent = game.away_tla;
+        document.getElementById('awayTeamName').textContent = game.away_team_name;
         document.getElementById('awayStatsHeader').textContent = game.away_tla;
         this.createGuage('awayExcitement', game.away_excitement,game.away_excitement_level);
         
         
         document.getElementById('homeLogo').src = `../assets/teams/${game.home_tla}_light.svg`;
-        document.getElementById('homeTeamName').textContent = game.home_tla;
+        document.getElementById('homeTeamName').textContent = game.home_team_name;
         document.getElementById('homeStatsHeader').textContent = game.home_tla;
         this.createGuage('homeExcitement', game.home_excitement,game.home_excitement_level);
 
@@ -167,7 +167,7 @@ class GameAnalyzer {
 
             if (isPreview)
             {
-                statsTitleEl.textContent = 'Average Over Last 10 Games';
+                statsTitleEl.textContent = 'Last 5 Game Averages Between These Teams';
             }
         }
 

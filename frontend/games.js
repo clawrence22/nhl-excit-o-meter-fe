@@ -2,8 +2,6 @@
 class ExcitementAnalyzer {
     constructor() {
         this.apiBase = CONFIG.API_BASE;
-
-        this.gamesById = new Map();
         this.gameCardRefs = new Map();
         this.activeLoadToken = null;
 
@@ -51,7 +49,6 @@ class ExcitementAnalyzer {
     async loadGames() {
         const loadToken = Symbol('load');
         this.activeLoadToken = loadToken;
-        this.gamesById.clear();
         this.gameCardRefs.clear();
 
         const dateInput = document.getElementById('gameDate');
@@ -95,6 +92,7 @@ class ExcitementAnalyzer {
     }    
 
     async fetchScheduleGames(date) {
+        
         const response = await fetch(`${this.apiBase}/excitement_date/${date}`);
         if (!response.ok) {
             throw new Error(`Failed to fetch schedule: ${response.status}`);
@@ -155,14 +153,13 @@ class ExcitementAnalyzer {
     gamesList.classList.remove('hidden');
     gamesList.innerHTML = '';
     
-    games = new Map([...games.entries()].sort().reverse());
 
     console.log("Displaying Games:", games);
 
-    for (const [id, game] of Object.entries(games)) 
-    {
-        this.gamesById.set(id, game);
+    const sortedGames = Object.entries(games).sort((a, b) => new Date(a[1].start_time) - new Date(b[1].start_time));
 
+    for (const [id, game] of sortedGames) 
+    {
         const gameCard = document.createElement('div');
         gameCard.className = 'game-card';
 
@@ -175,7 +172,7 @@ class ExcitementAnalyzer {
         const isPreview = (game.period === "Preview");
 
         const statusLabel = isFinal ? 'FINAL' : this.formatPeriod(game.period);
-        const timeLabel = isPreview ? game.start_time : game.period_time_remaining;
+        const timeLabel = isPreview ? this.formatLocalStartTime(game.start_time) : game.period_time_remaining;
 
         // ---- SCORE ----
         const goalsText = `${Number(game.away_goals)} - ${Number(game.home_goals)}`;
@@ -183,16 +180,35 @@ class ExcitementAnalyzer {
         const scoreText = isPreview ? '' : goalsText
 
         // ---- BROADCAST ----
-        const broadcastLines = [];
-        game.tv_broadcast.forEach((b) => {
-            if (b.market === "Home") broadcastLines.push(`🏠 Home: ${b.network}`);
-            else if (b.market === "Away") broadcastLines.push(`✈️ Away: ${b.network}`);
-            else if (b.market === "National") broadcastLines.push(`📡 National: ${b.network}`);
-        });
+  
 
-        const broadcastHTML = broadcastLines.length
-            ? `<div class="broadcast-info">${broadcastLines.join('<br>')}</div>`
-            : '';
+
+        const nationalBroadcasts = [...new Set(
+        game.tv_broadcast
+            .filter(b => b.market === "National" )
+            .map(b => b.network)
+        )];
+
+        const homeBroadcasts = [...new Set(
+        game.tv_broadcast
+            .filter(b => b.market === "Home")
+            .map(b => b.network)
+        )];
+
+        const awayBroadcasts = [...new Set(
+        game.tv_broadcast
+            .filter(b => b.market === "Away")
+            .map(b => b.network)
+        )];
+
+        const nationBroadcastHTML = nationalBroadcasts.length > 0 ? `<div><strong>National:</strong> ${nationalBroadcasts.join(', ')}</div>` : '';
+        const homeBroadcastHTML = homeBroadcasts.length > 0 ? `<div><strong>Home (${game.home_tla}):</strong> ${homeBroadcasts.join(', ')}</div>` : '';
+        const awayBroadcastHTML = awayBroadcasts.length > 0 ? `<div><strong>Away (${game.away_tla}):</strong> ${awayBroadcasts.join(', ')}</div>` : '';
+
+        const broadcastHTML = `${nationBroadcastHTML}${homeBroadcastHTML}${awayBroadcastHTML}`;
+    
+    
+
 
         // ---- BADGES ----
         const modifiers = game.excitement_modifiers || {};
@@ -239,12 +255,12 @@ class ExcitementAnalyzer {
                 <div class="game-teams">
                     <div class="team">
                         <img src="assets/teams/${game.away_tla}_light.svg" class="team-logo">
-                        <div class="team-abbrev">${game.away_tla}</div>
+                        <div class="team-abbrev">${game.away_team_name}</div>
                     </div>
                     <div class="vs-symbol">@</div>
                     <div class="team">
                         <img src="assets/teams/${game.home_tla}_light.svg" class="team-logo">
-                        <div class="team-abbrev">${game.home_tla}</div>
+                        <div class="team-abbrev">${game.home_team_name}</div>
                     </div>
                 </div>
 
@@ -255,7 +271,10 @@ class ExcitementAnalyzer {
                 <br>
                 ${badgesHTML}
                 <br>
-                ${broadcastHTML}
+                <div class="broadcast-info">${broadcastHTML}</div>
+                 <div class="debug-info">
+                    Game ID: ${id}
+                </div>
             </div>
         `;
 
