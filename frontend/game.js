@@ -40,48 +40,6 @@ class GameAnalyzer {
         this.displayStats(game);
     }
 
-    createExcitementGuage(containerId, excitement_score,excitement_level) {
-
-        var gauge = anychart.gauges.linear();
-        gauge.layout('horizontal');
-        gauge.background().fill(null)  // dark background = pro audio look
-
-        var scale = anychart.scales.linear();
-        scale.minimum(10);
-        scale.maximum(100);
-        gauge.scale(scale);
-
-        gauge.data([excitement_score]);
-
-        var led = gauge.led(0);
-
-        led.size('2%');      // thin bar
-        led.gap(1);          // spacing between LEDs
-
-        // ✅ Threshold-based coloring (NOT smooth gradient)
-        var colorScale = anychart.scales.ordinalColor();
-
-        colorScale.ranges([
-            { less: 24.99, color: '#e3e3e3' },     //meh
-            { from: 25.00, to: 49.99, color: '#fff708' }, //mid
-            { from: 50.00, to: 74.99, color: '#ff9603' }, // buzzin
-            { greater: 75.00, color: '#ff6200' } // burner
-        ]);
-
-        led.colorScale(colorScale);
-        var title = gauge.title();
-        title.orientation('top');
-        title.align('center');
-        title.text(excitement_level);
-        title.margin(0, 0, -80, 0);
-        title.fontColor("#dad7d7");
-
-        title.enabled(true);
-
-        gauge.container(containerId);
-        gauge.draw();
-    }
-
 
     updateGameHeader(game) {
         console.log("SingleGameObj:",game)
@@ -191,7 +149,7 @@ class GameAnalyzer {
 
             this.updateTotals('home', home_stats);
             this.updateTotals('away', away_stats);
-            this.createTugOfWarGauge(away_data.momentum, home_data.momentum, excitement_data.modifiers["zone-momentum"].back_and_forth,excitement_data.modifiers["zone-momentum"].ice_tilt);
+            this.createTugOfWarGauge(away_data.momentum, home_data.momentum,game_data.momentum_owner);
         }
 
     updateTotals(team, totals) {
@@ -231,29 +189,23 @@ class GameAnalyzer {
     }
 
 
-    createTugOfWarGauge(awayMomentum, homeMomentum, backAndForth,isIceTilt) {
-        let away = awayMomentum ?? 50;
-        let home = homeMomentum ?? 50;
+    createTugOfWarGauge(awayMomentum, homeMomentum,momentumOwner) {
+        let away = awayMomentum;
+        let home = homeMomentum;
 
-        const total = away + home || 1;
+        const total = away + home;
         const awayPct = (away / total) * 100;
-
-        console.log("AWAY MOMENTUM: ", away, "HOME MOMENTUM: ", home, "TOTAL: ", total, "AWAY %: ", awayPct, "BACK FORTH : ",backAndForth, "isIceTilt :" ,isIceTilt)
-
-        let momentumOwner = "Neutral";
-        
 
         const awayColor = this.teamColors?.[this.awayTeamAbbrev]?.primary ?? '#ff6b35';
         const homeColor = this.teamColors?.[this.homeTeamAbbrev]?.primary ?? '#c0392b';
 
         const bar = document.getElementById('iceTilt');
 
-        if (backAndForth) {
+        if (momentumOwner == "Back & Forth") {
             bar.classList.add('tug-back-and-forth');
             bar.style.background = '';
             bar.style.setProperty('--tug-away', awayColor);
             bar.style.setProperty('--tug-home', homeColor);
-            momentumOwner = "⚡ Back & Forth";
         } else {
             bar.classList.remove('tug-back-and-forth');
             bar.innerHTML = '';
@@ -261,8 +213,6 @@ class GameAnalyzer {
             const cutStart = Math.max(0, awayPct - blendWidth / 2);
             const cutEnd = Math.min(100, awayPct + blendWidth / 2);
             bar.style.background = `linear-gradient(to right, ${awayColor} ${cutStart}%, #888 ${awayPct}%, ${homeColor} ${cutEnd}%)`;
-            if (isIceTilt) { momentumOwner =  (awayPct > 50) ? `${this.awayTeamAbbrev}` : `${this.homeTeamAbbrev}`};
-            
         }
         
          bar.innerHTML = `<span class="tug-label">${momentumOwner}</span>`;
