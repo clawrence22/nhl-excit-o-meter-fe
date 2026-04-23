@@ -8,20 +8,25 @@ class ExcitementAnalyzer {
         this.initializeEventListeners();
     }
 
-    formatPeriod(period) 
+    formatPeriod(period, isFinal) 
     {
-        switch (period) {
-            case 'Preview':
-                return 'Preview';
-            case 1:
-                return '1st';
-            case 2:
-                return '2nd';
-            case 3:
-                return '3rd';
-            default:
-                return 'OT'
-            }
+        if (isFinal) {
+            return (period > 3) ? 'FINAL/OT' : "FINAL";
+        }
+        else {
+            switch (period) {
+                case 'Preview':
+                    return 'Preview';
+                case 1:
+                    return '1st';
+                case 2:
+                    return '2nd';
+                case 3:
+                    return '3rd';
+                default:
+                    return 'OT'
+                }
+        }
     }
 
     formatLocalStartTime(isoString, includeDate = false) {
@@ -101,6 +106,34 @@ class ExcitementAnalyzer {
 
         return games;
     }
+    getGuageColor(value)
+    {
+        const mehColor = '#767676';
+        const midColor = '#e2d62a';
+        const buzzColor = '#ffa600';
+        const burnColor = '#ff3c00';
+        
+        if (value <= 25) return mehColor;   
+        if (value <= 50) return midColor;  
+        if (value <= 75) return buzzColor;  
+        return burnColor;                  
+    }
+
+    createGrowingGauge(containerId,value,label) {
+
+        const valuePct = (value / 100) * 100;
+
+       
+        const endColor = '#767676';
+        const bar = document.getElementById(containerId);
+        bar.innerHTML = '';
+        const blendWidth = 8;
+        const cutStart = Math.max(0, valuePct - blendWidth / 2);
+        const cutEnd = Math.min(100, valuePct + blendWidth / 2);
+        const color = this.getGuageColor(value)
+        bar.style.background = `linear-gradient(to right, ${color} ${cutStart}%, #888 ${valuePct}%,  ${endColor} ${cutEnd}%)`;
+        bar.innerHTML = `<span class="tug-label">${label}</span>`;
+    }
 
     createExcitementGuage(containerId, excitement_score,excitement_level) {
 
@@ -160,22 +193,30 @@ class ExcitementAnalyzer {
 
     for (const [id, game] of sortedGames) 
     {
+        let game_data = game["game"]
+        let home_data = game["home"]
+        let away_data = game["away"]
+        let game_excitement_data = game["excitement"]
+        let playoffs = game["playoffs"]
         const gameCard = document.createElement('div');
         gameCard.className = 'game-card';
 
         gameCard.onclick = () => {
-            window.location.href = `game.html?id=${id}&gameDate=${game.game_date}`;
+            window.location.href = `game.html?id=${id}&gameDate=${game_data.game_date}`;
         };
 
         // ---- STATUS / TIME ----
-        const isFinal = game.is_game_over;
-        const isPreview = (game.period === "Preview");
+        const isFinal = game_data.is_game_over;
+        const isPreview = (game_data.period === "Preview");
+        const periodText = this.formatPeriod(game_data.period, isFinal);
 
-        const statusLabel = isFinal ? 'FINAL' : this.formatPeriod(game.period);
-        const timeLabel = isPreview ? this.formatLocalStartTime(game.start_time) : game.period_time_remaining;
+       
+
+        const statusLabel = periodText; 
+        const timeLabel = isPreview ? this.formatLocalStartTime(game_data.start_time) : game_data.period_time_remaining;
 
         // ---- SCORE ----
-        const goalsText = `${Number(game.away_goals)} - ${Number(game.home_goals)}`;
+        const goalsText = `${Number(away_data.goals)} - ${Number(home_data.goals)}`;
 
         const scoreText = isPreview ? '' : goalsText
 
@@ -184,26 +225,26 @@ class ExcitementAnalyzer {
 
 
         const nationalBroadcasts = [...new Set(
-        game.tv_broadcast
+        game_data.tv_broadcast
             .filter(b => b.market === "National" )
             .map(b => b.network)
         )];
 
         const homeBroadcasts = [...new Set(
-        game.tv_broadcast
+        game_data.tv_broadcast
             .filter(b => b.market === "Home")
             .map(b => b.network)
         )];
 
         const awayBroadcasts = [...new Set(
-        game.tv_broadcast
+        game_data.tv_broadcast
             .filter(b => b.market === "Away")
             .map(b => b.network)
         )];
 
         const nationBroadcastHTML = nationalBroadcasts.length > 0 ? `<div><strong>National:</strong> ${nationalBroadcasts.join(', ')}</div>` : '';
-        const homeBroadcastHTML = homeBroadcasts.length > 0 ? `<div><strong>Home (${game.home_tla}):</strong> ${homeBroadcasts.join(', ')}</div>` : '';
-        const awayBroadcastHTML = awayBroadcasts.length > 0 ? `<div><strong>Away (${game.away_tla}):</strong> ${awayBroadcasts.join(', ')}</div>` : '';
+        const homeBroadcastHTML = homeBroadcasts.length > 0 ? `<div><strong>Home (${home_data.tla}):</strong> ${homeBroadcasts.join(', ')}</div>` : '';
+        const awayBroadcastHTML = awayBroadcasts.length > 0 ? `<div><strong>Away (${away_data.tla}):</strong> ${awayBroadcasts.join(', ')}</div>` : '';
 
         const broadcastHTML = `${nationBroadcastHTML}${homeBroadcastHTML}${awayBroadcastHTML}`;
     
@@ -211,15 +252,13 @@ class ExcitementAnalyzer {
 
 
         // ---- BADGES ----
-        const modifiers = game.excitement_modifiers || {};
-        const playoffs = game.playoffs || {};
+        const modifiers = game_excitement_data.modifiers || {};
         const badges = [];
 
 
         if (modifiers["close-game"]) badges.push({icon: '<img src="assets/modifiers/close_game.svg"/>', label: 'Close Game', type: "highlight"});
         if (modifiers["high-scoring"]) badges.push({icon: '<img src="assets/modifiers/high_score.svg"/>', label: 'High-scoring Game', type: "highlight"});
-        if (modifiers["chances_ice_tilt"]) badges.push({icon: '<img src="assets/modifiers/ice_tilt.svg" alt="Ice Tilt (Chances)" />', label: 'Ice Tilt (Chances)', type: "detractor"});
-        if (modifiers["goals_ice_tilt"]) badges.push({icon: '<img src="assets/modifiers/ice_tilt.svg" alt="Ice Tilt (Goals)" />', label: 'Ice Tilt (Goals)', type: "detractor"});
+        if (modifiers["ice_tilt"]) badges.push({icon: '<img src="assets/modifiers/ice_tilt.svg" alt="Ice Tilt" />', label: 'Ice Tilt', type: "detractor"});
         if (modifiers["next-goal-wins"]) badges.push({icon: '<img src="assets/modifiers/next_goal_wins.svg" alt="Next Goal Wins" />', label: 'Next Goal Wins', type: "highlight"});
         if (modifiers["frenzy"]) badges.push({icon: '<img src="assets/modifiers/frenzy.svg" alt="Chance Frenzy" />', label: 'Chance Frenzy', type: "highlight"});
         if (modifiers["back_and_forth"]) badges.push({icon: '<img src="assets/modifiers/back_and_forth.svg" alt="Back and Forth" />', label: 'Back and Forth', imageFile: "back_and_forth", type: "highlight"});
@@ -255,21 +294,27 @@ class ExcitementAnalyzer {
             <div class="game-card-body">
                 <div class="game-teams">
                     <div class="team">
-                        <img src="assets/teams/${game.away_tla}_light.svg" class="team-logo">
-                        <div class="team-abbrev">${game.away_team_name}</div>
+                        <img src="assets/teams/${away_data.tla}_light.svg" class="team-logo">
+                        <div class="team-abbrev">${away_data.name}</div>
                     </div>
                     <div class="vs-symbol">@</div>
                     <div class="team">
-                        <img src="assets/teams/${game.home_tla}_light.svg" class="team-logo">
-                        <div class="team-abbrev">${game.home_team_name}</div>
+                        <img src="assets/teams/${home_data.tla}_light.svg" class="team-logo">
+                        <div class="team-abbrev">${home_data.name}</div>
                     </div>
                 </div>
 
                 <div class="game-score">${scoreText}</div>
                 <div class="game-status">${statusLabel}<br>${timeLabel}</div>
-                <br>
-                <div class="game-excitement" id="gameExcitement-${id}"></div>
-                <br>
+                 <div class="tug-container tug-labels" id="overallExcitement">
+                            <span class="tug-title">Overall</span>
+                            <div class="tug-gauge" id="gameExcitement-${id}"></div>
+                        </div> 
+                         <div class="tug-container tug-labels" id="overallExcitement">
+                            <span class="tug-title">Last 5 Minutes</span>
+                            <div class="tug-gauge" id="gameExcitement-five-${id}"></div>
+                        </div>
+                    </div>
                 ${badgesHTML}
                 <br>
                 <div class="broadcast-info">${broadcastHTML}</div>
@@ -281,7 +326,8 @@ class ExcitementAnalyzer {
 
         // create gauge AFTER DOM exists
         setTimeout(() => {
-            this.createExcitementGuage(`gameExcitement-${id}`, game.excitement_score, game.excitement_level);
+            this.createGrowingGauge(`gameExcitement-${id}`, game_data.ovr_excitment.excitement_score, game_data.ovr_excitment.excitement_level);
+            this.createGrowingGauge(`gameExcitement-five-${id}`, game_data.five_min_excitment.excitement_score, game_data.five_min_excitment.excitement_level);
         }, 0);
 
         gamesList.appendChild(gameCard);

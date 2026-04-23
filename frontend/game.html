@@ -31,8 +31,14 @@
                         <div class="team-info">
                             <img id="awayLogo" src="" alt="" class="team-logo-large">
                             <div class="team-name" id="awayTeamName">Away Team</div>
-                            <!-- <div class="team-score" id="awayTeamScore">0</div> -->
-                            <div class="game-excitement" id="awayExcitement"></div>
+                             <div class="tug-container tug-labels" id="overallExcitement">
+                                <span class="tug-title">Overall</span>
+                                <div class="tug-gauge" id="awayExcitement"></div>
+                            </div>
+                            <div class="tug-container tug-labels" id="overallExcitement">
+                                <span class="tug-title">Last 5 Minutes</span>
+                                <div class="tug-gauge" id="awayExcitementFive"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="game-status">
@@ -40,53 +46,61 @@
                             <div class="period-status" id="periodStatus">-</div>
                             <div class="time-status" id="timeStatus">-</div>
                         </div>
-                        <div class="game-excitement" id="gameExcitement"></div>
-                        <div class="excitement-summary" id="game-excitement-summary"></div>
-                        <div class="tug-container">
-                            <div class="tug-labels">
-                                <span id="tugAwayLabel">Away</span>
-                                <span class="tug-title">Momentum</span>
-                                <span id="tugHomeLabel">Home</span>
-                            </div>
-                            <div class="tug-gauge" id="tugBar"></div>
+                        <div class="tug-container tug-labels" id="overallExcitement">
+                            <span class="tug-title">Overall</span>
+                            <div class="tug-gauge" id="gameExcitement"></div>
+                        </div> 
+                         <div class="tug-container tug-labels" id="overallExcitement">
+                            <span class="tug-title">Last 5 Minutes</span>
+                            <div class="tug-gauge" id="last5Excitement"></div>
                         </div>
+                        <div class="tug-container tug-labels" id="tiltGuage">
+                            <span class="tug-title">Ice Tilt (Last 3 Minutes)</span>
+                            <div class="tug-gauge" id="iceTilt"></div>
+                        </div>
+                        <div class="excitement-summary" id="game-excitement-summary"></div>  
                     </div>
                     <div class="home-team">
                         <div class="team-info">
                             <img id="homeLogo" src="" alt="" class="team-logo-large">
                             <div class="team-name" id="homeTeamName">Home Team</div>
-                            <!-- <div class="team-score" id="homeTeamScore">0</div> -->
-                            <div class="game-excitement" id="homeExcitement"></div>
+                            <div class="tug-container tug-labels" id="overallExcitement">
+                                <span class="tug-title">Overall</span>
+                                <div class="tug-gauge" id="homeExcitement"></div>
+                            </div>
+                            <div class="tug-container tug-labels" id="overallExcitement">
+                                <span class="tug-title">Last 5 Minutes</span>
+                                <div class="tug-gauge" id="homeExcitementFive"></div>
+                            </div>
+                        </div> 
                         </div>
                     </div>
                 </div>
             </div>
             <div class="stats-section">
-                <h3 id="statsTitle">Game Statistics</h3>
                 <div class="stats-table">
                     <div class="stats-header">
-                        <div class="stat-category"></div>
+                        <div class="main-header">Game Statistics</div>
                         <div class="away-header" id="awayStatsHeader">Away</div>
                         <div class="home-header" id="homeStatsHeader">Home</div>
                     </div>
                     <div class="stat-row normal"id="stat-goal">
-                        <div class="stat-category" id="cat-goal">Goals<span class="stat-badges" id="badges-goal"></span></div>
-                        
+                        <div class="stat-category" id="cat-goal">Goals</div>
                         <div class="away-stat" id="awayGoals">0</div>
                         <div class="home-stat" id="homeGoals">0</div>
                     </div>
                     <div class="stat-row normal"id="stat-hdc">
-                        <div class="stat-category" id="cat-hdc">High Danger Chances<span class="stat-badges" id="badges-hdc"></span></div>
+                        <div class="stat-category" id="cat-hdc">High Danger Chances</div>
                         <div class="away-stat" id="awayHdc">0</div>
                         <div class="home-stat" id="homeHdc">0</div>
                     </div>
                     <div class="stat-row normal"id="stat-mdc">
-                        <div class="stat-category" id="cat-mdc">Medium Danger Chances<span class="stat-badges" id="badges-mdc"></span></div>
+                        <div class="stat-category" id="cat-mdc">Medium Danger Chances</div>
                         <div class="away-stat" id="awayMdc">0</div>
                         <div class="home-stat" id="homeMdc">0</div>
                     </div>
                     <div class="stat-row normal"id="stat-hits">
-                        <div class="stat-category" id="cat-hits">Hits<span class="stat-badges" id="badges-hits"></span></div>
+                        <div class="stat-category" id="cat-hits">Hits</span></div>
                         <div class="away-stat" id="awayHits">0</div>
                         <div class="home-stat" id="homeHits">0</div>
                     </div>

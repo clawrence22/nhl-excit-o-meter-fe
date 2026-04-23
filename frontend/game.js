@@ -29,13 +29,15 @@ class GameAnalyzer {
     }
 
     async loadGameInfo() {
-        const response = await fetch(`${this.apiBase}/excitement_game?id=${this.gameId}&date=${this.gameDate}`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch schedule: ${response.status}`);
-        }
+        const [response, teamColors] = await Promise.all([
+            fetch(`${this.apiBase}/excitement_game?id=${this.gameId}&date=${this.gameDate}`),
+            fetch('team-colors.json').then(r => r.json())
+        ]);
+        if (!response.ok) throw new Error(`Failed to fetch schedule: ${response.status}`);
         const game = await response.json();
+        this.teamColors = teamColors;
         this.updateGameHeader(game);
-        this.displayStats(game)
+        this.displayStats(game);
     }
 
     createExcitementGuage(containerId, excitement_score,excitement_level) {
@@ -83,37 +85,45 @@ class GameAnalyzer {
 
     updateGameHeader(game) {
         console.log("SingleGameObj:",game)
+        let away_data = game["away"]
+        let home_data = game["home"]
+        let game_data = game["game"]
+        let excitement_data = game["excitement"]
         // Update team matchup header
-        document.getElementById('awayLogo').src = `../assets/teams/${game.away_tla}_light.svg`;
-        document.getElementById('awayTeamName').textContent = game.away_team_name;
-        document.getElementById('awayStatsHeader').textContent = game.away_tla;
-        this.createExcitementGuage('awayExcitement', game.away_excitement,game.away_excitement_level);
+        document.getElementById('awayLogo').src = `../assets/teams/${game.away.tla}_light.svg`;
+        document.getElementById('awayTeamName').textContent = away_data.name;
+        document.getElementById('awayStatsHeader').textContent = away_data.tla;
+        this.createGrowingGauge('awayExcitement',away_data.ovr_excitment.excitement_score,away_data.ovr_excitment.excitement_level);
+        this.createGrowingGauge('awayExcitementFive',away_data.five_min_excitment.excitement_score,away_data.five_min_excitment.excitement_level);
         
         
-        document.getElementById('homeLogo').src = `../assets/teams/${game.home_tla}_light.svg`;
-        document.getElementById('homeTeamName').textContent = game.home_team_name;
-        document.getElementById('homeStatsHeader').textContent = game.home_tla;
-        this.createExcitementGuage('homeExcitement', game.home_excitement,game.home_excitement_level);
+        document.getElementById('homeLogo').src = `../assets/teams/${home_data.tla}_light.svg`;
+        document.getElementById('homeTeamName').textContent = home_data.name;
+        document.getElementById('homeStatsHeader').textContent = home_data.tla;
+        this.createGrowingGauge('homeExcitement',home_data.ovr_excitment.excitement_score,home_data.ovr_excitment.excitement_level);
+        this.createGrowingGauge('homeExcitementFive',home_data.five_min_excitment.excitement_score,home_data.five_min_excitment.excitement_level);
 
         // Live game - format period with ordinal suffix
         let periodText = "Preview"
         let timeRemaining = ""
-        if (game.period != "Preview")
+        if (game_data.period != "Preview")
         {
-            const num = parseInt(game.period);
+            const num = parseInt(game_data.period);
             periodText = num === 1 ? '1st' : num === 2 ? '2nd' : num === 3 ? '3rd' : `OT`;
-            if (game.is_game_over)
+            if (game_data.is_game_over)
             {
                 periodText = (num > 3) ? 'FINAL/OT' : "FINAL";
             }
 
-            timeRemaining = game.period_time_remaining
+            timeRemaining = game_data.period_time_remaining
         }
-        this.displayGameModifiers(game.excitement_modifiers,game.playoffs);
+        this.displayGameModifiers(excitement_data.modifiers,game.playoffs);
         
         document.getElementById('periodStatus').textContent = periodText;
         document.getElementById('timeStatus').textContent = timeRemaining;
-        this.createExcitementGuage('gameExcitement', game.excitement_score,game.excitement_level);
+        this.createGrowingGauge('gameExcitement',game_data.ovr_excitment.excitement_score,game_data.ovr_excitment.excitement_level);
+        this.createGrowingGauge('last5Excitement',game_data.five_min_excitment.excitement_score,game_data.five_min_excitment.excitement_level);
+       
     }
 
     getGameIdFromUrl() {
@@ -146,10 +156,15 @@ class GameAnalyzer {
         document.getElementById('error').classList.add('hidden');
         document.getElementById('results').classList.remove('hidden');
 
-        const isPreview = (game.period === "Preview")
+        let game_data = game["game"]
+        let away_data = game["away"]
+        let home_data = game["home"]
+        let excitement_data = game["excitement"]
+
+        const isPreview = (game_data.period === "Preview")
         
-        this.homeTeamAbbrev = game.home_tla
-        this.awayTeamAbbrev = game.away_tla
+        this.homeTeamAbbrev = home_data.tla
+        this.awayTeamAbbrev = game.away.tla
         
         const statsSection = document.querySelector('.stats-section');
         if (statsSection) {
@@ -171,13 +186,12 @@ class GameAnalyzer {
             }
         }
 
-            var away_data = {"goals": game.away_goals, "hdc": game.away_hdc, "mdc": game.away_mdc, "hits": game.away_hits};
-            var home_data = {"goals": game.home_goals, "hdc": game.home_hdc, "mdc": game.home_mdc, "hits": game.home_hits}; 
+            var away_stats = {"goals":away_data.goals, "hdc":away_data.hdc, "mdc":away_data.mdc, "hits":away_data.hits};
+            var home_stats = {"goals": home_data.goals, "hdc": home_data.hdc, "mdc": home_data.mdc, "hits": home_data.hits}; 
 
-            this.updateTotals('home', home_data);
-            this.updateTotals('away', away_data);
-            this.displayStatsModifiers(game.excitement_modifiers);
-            this.createTugOfWarGauge(game.away_momentum, game.home_momentum, game.excitement_modifiers.back_and_forth);
+            this.updateTotals('home', home_stats);
+            this.updateTotals('away', away_stats);
+            this.createTugOfWarGauge(away_data.momentum, home_data.momentum, excitement_data.modifiers["zone-momentum"].back_and_forth,excitement_data.modifiers["zone-momentum"].ice_tilt);
         }
 
     updateTotals(team, totals) {
@@ -187,32 +201,71 @@ class GameAnalyzer {
         document.getElementById(`${team}Hits`).textContent = totals.hits;
     }
 
+    getGuageColor(value)
+    {
+        const mehColor = '#767676';
+        const midColor = '#e2d62a';
+        const buzzColor = '#ffa600';
+        const burnColor = '#ff3c00';
+        
+        if (value <= 25) return mehColor;   
+        if (value <= 50) return midColor;  
+        if (value <= 75) return buzzColor;  
+        return burnColor;                  
+    }
 
-    createTugOfWarGauge(awayMomentum, homeMomentum, backAndForth) {
-        const away = awayMomentum ?? 50;
-        const home = homeMomentum ?? 50;
+    createGrowingGauge(containerId,value,label) {
+
+        const valuePct = (value / 100) * 100;
+
+       
+        const endColor = '#767676';
+        const bar = document.getElementById(containerId);
+        bar.innerHTML = '';
+        const blendWidth = 8;
+        const cutStart = Math.max(0, valuePct - blendWidth / 2);
+        const cutEnd = Math.min(100, valuePct + blendWidth / 2);
+        const color = this.getGuageColor(value)
+        bar.style.background = `linear-gradient(to right, ${color} ${cutStart}%, #888 ${valuePct}%,  ${endColor} ${cutEnd}%)`;
+        bar.innerHTML = `<span class="tug-label">${label}</span>`;
+    }
+
+
+    createTugOfWarGauge(awayMomentum, homeMomentum, backAndForth,isIceTilt) {
+        let away = awayMomentum ?? 50;
+        let home = homeMomentum ?? 50;
 
         const total = away + home || 1;
         const awayPct = (away / total) * 100;
-        const homePct = 100 - awayPct;
 
-        document.getElementById('tugAwayLabel').textContent = this.awayTeamAbbrev || 'Away';
-        document.getElementById('tugHomeLabel').textContent = this.homeTeamAbbrev || 'Home';
+        console.log("AWAY MOMENTUM: ", away, "HOME MOMENTUM: ", home, "TOTAL: ", total, "AWAY %: ", awayPct, "BACK FORTH : ",backAndForth, "isIceTilt :" ,isIceTilt)
 
-        const bar = document.getElementById('tugBar');
+        let momentumOwner = "Neutral";
+        
+
+        const awayColor = this.teamColors?.[this.awayTeamAbbrev]?.primary ?? '#ff6b35';
+        const homeColor = this.teamColors?.[this.homeTeamAbbrev]?.primary ?? '#c0392b';
+
+        const bar = document.getElementById('iceTilt');
 
         if (backAndForth) {
             bar.classList.add('tug-back-and-forth');
             bar.style.background = '';
-            bar.innerHTML = '<span class="tug-bnf-label">⚡ Back & Forth</span>';
+            bar.style.setProperty('--tug-away', awayColor);
+            bar.style.setProperty('--tug-home', homeColor);
+            momentumOwner = "⚡ Back & Forth";
         } else {
             bar.classList.remove('tug-back-and-forth');
             bar.innerHTML = '';
             const blendWidth = 8;
             const cutStart = Math.max(0, awayPct - blendWidth / 2);
             const cutEnd = Math.min(100, awayPct + blendWidth / 2);
-            bar.style.background = `linear-gradient(to right, #ff6b35 ${cutStart}%, #f7931e ${awayPct}%, #c0392b ${cutEnd}%)`;
+            bar.style.background = `linear-gradient(to right, ${awayColor} ${cutStart}%, #888 ${awayPct}%, ${homeColor} ${cutEnd}%)`;
+            if (isIceTilt) { momentumOwner =  (awayPct > 50) ? `${this.awayTeamAbbrev}` : `${this.homeTeamAbbrev}`};
+            
         }
+        
+         bar.innerHTML = `<span class="tug-label">${momentumOwner}</span>`;
     }
 
     updateStateRowModifier(rowId, modifier) {
@@ -244,59 +297,20 @@ class GameAnalyzer {
 
         badgesEl.appendChild(badgeEl);
     }
-        
-    displayStatsModifiers(modifiers) 
-    {
-
-        if (modifiers["close-game"])
-        {
-            this.updateStateRowModifier("stat-goal", "highlight");
-            this.addBadge("badges-goal", "Close Game","close_game","highlight");
-           
-        }
-        
-        if (modifiers["high-scoring"])
-        {
-            this.updateStateRowModifier("stat-goal", "highlight");
-            this.addBadge("badges-goal", "High Scoring Game","high_score","highlight");
-        }
-
-         if (modifiers["goals_ice_tilt"])
-        {
-            this.updateStateRowModifier("stat-goal", "detractor");
-            this.addBadge("badges-goal", "Goals Ice Tilt","ice_tilt","detractor");
-        }
-        
-        if (modifiers["frenzy"])
-        {
-            this.updateStateRowModifier("stat-hdc", "highlight");
-            this.addBadge("badges-hdc", "Chances Frenzy","frenzy","highlight");
-
-            this.updateStateRowModifier("stat-mdc", "highlight");
-            this.addBadge("badges-mdc", "Chances Frenzy","frenzy","highlight");
-        }
-       
-        if (modifiers["chances_ice_tilt"])
-        {
-            this.updateStateRowModifier("stat-hdc", "detractor");
-            this.addBadge("badges-hdc", "Chances Ice Tilt","ice_tilt","detractor");
-            this.updateStateRowModifier("stat-mdc", "detractor");
-            this.addBadge("badges-mdc", "Chances Ice Tilt","ice_tilt","detractor");
-        }
-       
-    
-    }
 
     displayGameModifiers(modifiers,playoffs) {
         
         var badgesEl =  document.getElementById("game-excitement-summary");
         const badges = [];
-        if (modifiers["next-goal-wins"]) badges.push({icon: '<img src="assets/modifiers/next_goal_wins.svg" alt="Next Goal Wins" />', label: 'Next Goal Wins', imageFile: "next_goal_wins", type: "highlight"});
-        if (modifiers["back_and_forth"]) badges.push({icon: '<img src="assets/modifiers/back_and_forth.svg" alt="Back and Forth" />', label: 'Back and Forth', imageFile: "back_and_forth", type: "highlight"});
-        if (playoffs["is_playoff"]) badges.push({icon: '<img src="assets/modifiers/playoffs.svg" alt="Playoff Game" />', label: 'Playoff Game', imageFile: "playoffs", type: "highlight"});
-        if (playoffs["game_seven"]) badges.push({icon: '<img src="assets/modifiers/game_seven.svg" alt="Game Seven" />', label: 'Game Seven', imageFile: "game_seven", type: "highlight"});
-        if (playoffs["elimination_game"] && !playoffs["game_seven"]) badges.push({icon: '<img src="assets/modifiers/elimination_game.svg" alt="Elimination Game" />', label: 'Elimination Game', imageFile: "elimination_game", type: "highlight"});
-        if (playoffs["cup_final"]) badges.push({icon: '<img src="assets/modifiers/cup_final.svg" alt="Cup Final" />', label: 'Cup Final', imageFile: "cup_final", type: "highlight"});
+        if (modifiers["next-goal-wins"]) badges.push({label: 'Next Goal Wins', imageFile: "next_goal_wins", type: "highlight"});
+        if (modifiers["back_and_forth"]) badges.push({label: 'Back and Forth', imageFile: "back_and_forth", type: "highlight"});
+        if (modifiers["ice_tilt"]) badges.push({label: 'Ice Tilt', imageFile: "ice_tilt", type: "detactor"});
+        if (modifiers["close-game"]) badges.push({label: 'Close Game', imageFile: "close_game", type: "highlight"});
+        if (modifiers["high-scoring"]) badges.push({label: 'High Scoring', imageFile: "high_score", type: "highlight"});
+        if (playoffs["is_playoff"]) badges.push({label: 'Playoff Game', imageFile: "playoffs", type: "highlight"});
+        if (playoffs["game_seven"]) badges.push({ label: 'Game Seven', imageFile: "game_seven", type: "highlight"});
+        if (playoffs["elimination_game"] && !playoffs["game_seven"]) badges.push({label: 'Elimination Game', imageFile: "elimination_game", type: "highlight"});
+        if (playoffs["cup_final"]) badges.push({label: 'Cup Final', imageFile: "cup_final", type: "highlight"});
 
         console.log("Game Modifiers:", modifiers);
         console.log("Derived Badges:", badges);
