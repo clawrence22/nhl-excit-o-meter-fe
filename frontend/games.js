@@ -311,7 +311,7 @@ class ExcitementAnalyzer {
                             <div class="tug-gauge" id="gameExcitement-${id}"></div>
                         </div> 
                          <div class="tug-container tug-labels" id="overallExcitement">
-                            <span class="tug-title">Last 5 Minutes</span>
+                            <span class="tug-title">Previous 5 Minutes</span>
                             <div class="tug-gauge" id="gameExcitement-five-${id}"></div>
                         </div>
                     </div>
