@@ -133,19 +133,12 @@ class GameAnalyzer {
         }
 
         // Live/finished game - show game info and totals
-        const statsTitleEl = document.getElementById('statsTitle');
-        if (statsTitleEl) {
-            statsTitleEl.textContent = 'Game Statistics';
-            statsTitleEl.removeAttribute('data-mode');
-            statsTitleEl.removeAttribute('data-source');
-            statsTitleEl.removeAttribute('data-window');
-            statsTitleEl.removeAttribute('data-games-text');
-
-            if (isPreview)
-            {
-                statsTitleEl.textContent = 'Series Averages Between These Teams';
-            }
+        const statsTitleEl = document.getElementById('mainStatsHeader');
+        if (isPreview)
+        {
+            statsTitleEl.textContent = 'Series Averages Between These Teams';
         }
+
 
             var away_stats = {"goals":away_data.goals, "hdc":away_data.hdc, "mdc":away_data.mdc, "hits":away_data.hits};
             var home_stats = {"goals": home_data.goals, "hdc": home_data.hdc, "mdc": home_data.mdc, "hits": home_data.hits}; 
