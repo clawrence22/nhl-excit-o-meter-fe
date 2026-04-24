@@ -393,8 +393,9 @@ body {
 }
 
 .hidden {
-    display: none;
+    display: none !important;;
 }
+
 
 .methodology-link {
     text-align: center;
@@ -647,12 +648,24 @@ body {
     position: relative;
 }
 
-.tug-back-and-forth {
-    --tug-away: #ff6b35;
-    --tug-home: #c0392b;
+.back-and-forth  {
+    --tug-away: #fa6014;
+    --tug-home: #d74a12;
     background: linear-gradient(90deg, var(--tug-away), var(--tug-home)) !important;
     animation: tug-pulse 1.2s ease-in-out infinite !important;
     border-color: #888 !important;
+}
+
+.back-and-forth-label {
+    position: relative;
+    z-index: 1;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 4px rgba(0,0,0,0.8);
+    white-space: nowrap;
 }
 
 @keyframes tug-pulse {

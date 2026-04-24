@@ -89,7 +89,6 @@ class ExcitementAnalyzer {
     {
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('error').classList.add('hidden');
-        document.getElementById('results').classList.add('hidden');
     
         const gamesList = document.getElementById('gamesList');
         gamesList.classList.remove('hidden');
@@ -113,74 +112,55 @@ class ExcitementAnalyzer {
         const buzzColor = '#ffa600';
         const burnColor = '#ff3c00';
         
-        if (value <= 25) return mehColor;   
-        if (value <= 50) return midColor;  
-        if (value <= 75) return buzzColor;  
+        if (value < 33) return mehColor;   
+        if (value < 66) return midColor;  
+        if (value < 80) return buzzColor;  
         return burnColor;                  
     }
 
-    createGrowingGauge(containerId,value,label) {
+    createGrowingGauge(containerId,value,label,isPreview) {
 
         const valuePct = (value / 100) * 100;
 
        
-        const endColor = '#767676';
+        const endColor = '#2c2c2cfb';
         const bar = document.getElementById(containerId);
+
+        if (isPreview && containerId.includes("-five-"))
+        {
+            const parentNode = bar.parentNode;
+            parentNode.classList.add('hidden')
+            return
+        }
+
         bar.innerHTML = '';
         const blendWidth = 8;
         const cutStart = Math.max(0, valuePct - blendWidth / 2);
         const cutEnd = Math.min(100, valuePct + blendWidth / 2);
         const color = this.getGuageColor(value)
-        bar.style.background = `linear-gradient(to right, ${color} ${cutStart}%, #888 ${valuePct}%,  ${endColor} ${cutEnd}%)`;
-        bar.innerHTML = `<span class="tug-label">${label}</span>`;
-    }
+        let label_class = 'tug-label'
+        if (color == "#ff3c00")
+        {
+            bar.classList.add('back-and-forth')
+            label_class = 'back-and-forth-label'
+        }
+        else
+        {
+            bar.classList.remove('back-and-forth')
+            bar.style.background = `linear-gradient(to right, ${color} ${cutStart}%, #888 ${valuePct}%,  ${endColor} ${cutEnd}%)`;
+        }
+        // 2. Create the span element
+        const labelSpan = document.createElement('span');
 
-    createExcitementGuage(containerId, excitement_score,excitement_level) {
-
-        var gauge = anychart.gauges.linear();
-        gauge.layout('horizontal');
-        gauge.background().fill(null)  // dark background = pro audio look
-
-        var scale = anychart.scales.linear();
-        scale.minimum(10);
-        scale.maximum(100);
-        gauge.scale(scale);
-
-        gauge.data([excitement_score]);
-
-        var led = gauge.led(0);
-
-        led.size('2%');      // thin bar
-        led.gap(1);          // spacing between LEDs
-
-        // ✅ Threshold-based coloring (NOT smooth gradient)
-        var colorScale = anychart.scales.ordinalColor();
-
-        colorScale.ranges([
-            { less: 24.99, color: '#e3e3e3' },     //meh
-            { from: 25.00, to: 49.99, color: '#fff708' }, //mid
-            { from: 50.00, to: 74.99, color: '#ff9603' }, // buzzin
-            { greater: 75.00, color: '#ff6200' } // burner
-        ]);
-
-        led.colorScale(colorScale);
-        var title = gauge.title();
-        title.orientation('top');
-        title.align('center');
-        title.text(excitement_level);
-        title.margin(0, 0, -80, 0);
-        title.fontColor("#dad7d7");
-
-        title.enabled(true);
-
-        gauge.container(containerId);
-        gauge.draw();
+        // 3. Configure the span (text, class, style)
+        labelSpan.textContent = label;
+        labelSpan.className = label_class;
+        bar.appendChild(labelSpan);
     }
 
    displayGamesList(games) {
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('error').classList.add('hidden');
-    document.getElementById('results').classList.add('hidden');
 
     const gamesList = document.getElementById('gamesList');
     gamesList.classList.remove('hidden');
@@ -326,8 +306,10 @@ class ExcitementAnalyzer {
 
         // create gauge AFTER DOM exists
         setTimeout(() => {
-            this.createGrowingGauge(`gameExcitement-${id}`, game_data.ovr_excitment.excitement_score, game_data.ovr_excitment.excitement_level);
-            this.createGrowingGauge(`gameExcitement-five-${id}`, game_data.five_min_excitment.excitement_score, game_data.five_min_excitment.excitement_level);
+            this.createGrowingGauge(`gameExcitement-${id}`, game_data.ovr_excitment.excitement_score, game_data.ovr_excitment.excitement_level,isPreview);
+            this.createGrowingGauge(`gameExcitement-five-${id}`, game_data.five_min_excitment.excitement_score, game_data.five_min_excitment.excitement_level,isPreview);
+
+           
         }, 0);
 
         gamesList.appendChild(gameCard);
@@ -337,13 +319,11 @@ class ExcitementAnalyzer {
 
     showLoading() {
         document.getElementById('loading').classList.remove('hidden');
-        document.getElementById('results').classList.add('hidden');
         document.getElementById('error').classList.add('hidden');
     }
 
     showError(message) {
         document.getElementById('loading').classList.add('hidden');
-        document.getElementById('results').classList.add('hidden');
         document.getElementById('error').classList.remove('hidden');
         document.getElementById('errorMessage').textContent = message;
     }

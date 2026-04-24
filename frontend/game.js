@@ -47,24 +47,26 @@ class GameAnalyzer {
         let home_data = game["home"]
         let game_data = game["game"]
         let excitement_data = game["excitement"]
+        const isPreview = game_data.period === "Preview"
+
         // Update team matchup header
         document.getElementById('awayLogo').src = `../assets/teams/${game.away.tla}_light.svg`;
         document.getElementById('awayTeamName').textContent = away_data.name;
         document.getElementById('awayStatsHeader').textContent = away_data.tla;
-        this.createGrowingGauge('awayExcitement',away_data.ovr_excitment.excitement_score,away_data.ovr_excitment.excitement_level);
-        this.createGrowingGauge('awayExcitementFive',away_data.five_min_excitment.excitement_score,away_data.five_min_excitment.excitement_level);
+        this.createGrowingGauge('awayExcitement',away_data.ovr_excitment.excitement_score,away_data.ovr_excitment.excitement_level,isPreview);
+        this.createGrowingGauge('awayExcitementFive',away_data.five_min_excitment.excitement_score,away_data.five_min_excitment.excitement_level,isPreview);
         
         
         document.getElementById('homeLogo').src = `../assets/teams/${home_data.tla}_light.svg`;
         document.getElementById('homeTeamName').textContent = home_data.name;
         document.getElementById('homeStatsHeader').textContent = home_data.tla;
-        this.createGrowingGauge('homeExcitement',home_data.ovr_excitment.excitement_score,home_data.ovr_excitment.excitement_level);
-        this.createGrowingGauge('homeExcitementFive',home_data.five_min_excitment.excitement_score,home_data.five_min_excitment.excitement_level);
+        this.createGrowingGauge('homeExcitement',home_data.ovr_excitment.excitement_score,home_data.ovr_excitment.excitement_level,isPreview);
+        this.createGrowingGauge('homeExcitementFive',home_data.five_min_excitment.excitement_score,home_data.five_min_excitment.excitement_level,isPreview);
 
         // Live game - format period with ordinal suffix
         let periodText = "Preview"
         let timeRemaining = ""
-        if (game_data.period != "Preview")
+        if (!isPreview)
         {
             const num = parseInt(game_data.period);
             periodText = num === 1 ? '1st' : num === 2 ? '2nd' : num === 3 ? '3rd' : `OT`;
@@ -75,12 +77,13 @@ class GameAnalyzer {
 
             timeRemaining = game_data.period_time_remaining
         }
+
         this.displayGameModifiers(excitement_data.modifiers,game.playoffs);
         
         document.getElementById('periodStatus').textContent = periodText;
         document.getElementById('timeStatus').textContent = timeRemaining;
-        this.createGrowingGauge('gameExcitement',game_data.ovr_excitment.excitement_score,game_data.ovr_excitment.excitement_level);
-        this.createGrowingGauge('last5Excitement',game_data.five_min_excitment.excitement_score,game_data.five_min_excitment.excitement_level);
+        this.createGrowingGauge('gameExcitement',game_data.ovr_excitment.excitement_score,game_data.ovr_excitment.excitement_level,isPreview);
+        this.createGrowingGauge('lastFiveExcitement',game_data.five_min_excitment.excitement_score,game_data.five_min_excitment.excitement_level,isPreview);
        
     }
 
@@ -140,7 +143,7 @@ class GameAnalyzer {
 
             if (isPreview)
             {
-                statsTitleEl.textContent = 'Last 5 Game Averages Between These Teams';
+                statsTitleEl.textContent = 'Series Averages Between These Teams';
             }
         }
 
@@ -149,7 +152,7 @@ class GameAnalyzer {
 
             this.updateTotals('home', home_stats);
             this.updateTotals('away', away_stats);
-            this.createTugOfWarGauge(away_data.momentum, home_data.momentum,game_data.momentum_owner);
+            this.createIceTiltGauge(away_data.momentum, home_data.momentum,game_data.momentum_owner,isPreview);
         }
 
     updateTotals(team, totals) {
@@ -166,30 +169,67 @@ class GameAnalyzer {
         const buzzColor = '#ffa600';
         const burnColor = '#ff3c00';
         
-        if (value <= 25) return mehColor;   
-        if (value <= 50) return midColor;  
-        if (value <= 75) return buzzColor;  
+        if (value < 33) return mehColor;   
+        if (value < 66) return midColor;  
+        if (value < 80) return buzzColor;  
         return burnColor;                  
     }
 
-    createGrowingGauge(containerId,value,label) {
+    createGrowingGauge(containerId,value,label,isPreview) {
+
+        console.log("Updating container:", containerId , "Is it Preview: ",isPreview)
+        const bar = document.getElementById(containerId);
+
+        if (isPreview && containerId.includes("Five"))
+        {
+            console.log("Preview hiding Five Min Gauge")
+            const parentNode = bar.parentNode;
+            parentNode.classList.add('hidden')
+            return
+        }
 
         const valuePct = (value / 100) * 100;
 
        
         const endColor = '#767676';
-        const bar = document.getElementById(containerId);
-        bar.innerHTML = '';
+        
         const blendWidth = 8;
         const cutStart = Math.max(0, valuePct - blendWidth / 2);
         const cutEnd = Math.min(100, valuePct + blendWidth / 2);
         const color = this.getGuageColor(value)
-        bar.style.background = `linear-gradient(to right, ${color} ${cutStart}%, #888 ${valuePct}%,  ${endColor} ${cutEnd}%)`;
-        bar.innerHTML = `<span class="tug-label">${label}</span>`;
+        let label_class = 'tug-label'
+        if (color == "#ff3c00")
+        {
+            bar.classList.add('back-and-forth')
+            label_class = 'back-and-forth-label'
+        }
+        else
+        {
+            bar.classList.remove('back-and-forth')
+            bar.style.background = `linear-gradient(to right, ${color} ${cutStart}%, #888 ${valuePct}%,  ${endColor} ${cutEnd}%)`;
+        }
+        // 2. Create the span element
+        const labelSpan = document.createElement('span');
+
+        // 3. Configure the span (text, class, style)
+        labelSpan.textContent = label;
+        labelSpan.className = label_class;
+        bar.appendChild(labelSpan);
     }
 
 
-    createTugOfWarGauge(awayMomentum, homeMomentum,momentumOwner) {
+    createIceTiltGauge(awayMomentum, homeMomentum,momentumOwner,isPreview) {
+
+        const bar = document.getElementById('iceTilt');
+
+        if (isPreview)
+        {
+            console.log("Preview hiding Five Min Gauge")
+            const parentNode = bar.parentNode;
+            parentNode.classList.add('hidden')
+            return
+        }
+
         let away = awayMomentum;
         let home = homeMomentum;
 
@@ -199,15 +239,13 @@ class GameAnalyzer {
         const awayColor = this.teamColors?.[this.awayTeamAbbrev]?.primary ?? '#ff6b35';
         const homeColor = this.teamColors?.[this.homeTeamAbbrev]?.primary ?? '#c0392b';
 
-        const bar = document.getElementById('iceTilt');
-
         if (momentumOwner == "Back & Forth") {
-            bar.classList.add('tug-back-and-forth');
+            bar.classList.add('back-and-forth');
             bar.style.background = '';
             bar.style.setProperty('--tug-away', awayColor);
             bar.style.setProperty('--tug-home', homeColor);
         } else {
-            bar.classList.remove('tug-back-and-forth');
+            bar.classList.remove('back-and-forth');
             bar.innerHTML = '';
             const blendWidth = 8;
             const cutStart = Math.max(0, awayPct - blendWidth / 2);
