@@ -54,14 +54,14 @@ class GameAnalyzer {
         document.getElementById('awayTeamName').textContent = away_data.name;
         document.getElementById('awayStatsHeader').textContent = away_data.tla;
         this.createGrowingGauge('awayExcitement',away_data.ovr_excitment.excitement_score,away_data.ovr_excitment.excitement_level,isPreview);
-        this.createGrowingGauge('awayExcitementFive',away_data.five_min_excitment.excitement_score,away_data.five_min_excitment.excitement_level,isPreview);
+        this.createGrowingGauge('awayExcitementPulse',away_data.pulse_excitment.excitement_score,away_data.pulse_excitment.excitement_level,isPreview);
         
         
         document.getElementById('homeLogo').src = `../assets/teams/${home_data.tla}_light.svg`;
         document.getElementById('homeTeamName').textContent = home_data.name;
         document.getElementById('homeStatsHeader').textContent = home_data.tla;
         this.createGrowingGauge('homeExcitement',home_data.ovr_excitment.excitement_score,home_data.ovr_excitment.excitement_level,isPreview);
-        this.createGrowingGauge('homeExcitementFive',home_data.five_min_excitment.excitement_score,home_data.five_min_excitment.excitement_level,isPreview);
+        this.createGrowingGauge('homeExcitementPulse',home_data.pulse_excitment.excitement_score,home_data.pulse_excitment.excitement_level,isPreview);
 
         // Live game - format period with ordinal suffix
         let periodText = "Preview"
@@ -83,7 +83,7 @@ class GameAnalyzer {
         document.getElementById('periodStatus').textContent = periodText;
         document.getElementById('timeStatus').textContent = timeRemaining;
         this.createGrowingGauge('gameExcitement',game_data.ovr_excitment.excitement_score,game_data.ovr_excitment.excitement_level,isPreview);
-        this.createGrowingGauge('lastFiveExcitement',game_data.five_min_excitment.excitement_score,game_data.five_min_excitment.excitement_level,isPreview);
+        this.createGrowingGauge('pulseExcitement',game_data.pulse_excitment.excitement_score,game_data.pulse_excitment.excitement_level,isPreview);
        
     }
 
@@ -173,9 +173,9 @@ class GameAnalyzer {
         console.log("Updating container:", containerId , "Is it Preview: ",isPreview)
         const bar = document.getElementById(containerId);
 
-        if (isPreview && containerId.includes("Five"))
+        if (isPreview && containerId.includes("Pulse"))
         {
-            console.log("Preview hiding Five Min Gauge")
+            console.log("Preview hiding Pulse Min Gauge")
             const parentNode = bar.parentNode;
             parentNode.classList.add('hidden')
             return
@@ -217,7 +217,7 @@ class GameAnalyzer {
 
         if (isPreview)
         {
-            console.log("Preview hiding Five Min Gauge")
+            console.log("Preview hiding Pulse Min Gauge")
             const parentNode = bar.parentNode;
             parentNode.classList.add('hidden')
             return

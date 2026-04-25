@@ -8,23 +8,27 @@ class ExcitementAnalyzer {
         this.initializeEventListeners();
     }
 
-    formatPeriod(period, isFinal) 
+    formatPeriod(period, isFinal,isIntermission) 
     {
+        let suffix = ''
         if (isFinal) {
             return (period > 3) ? 'FINAL/OT' : "FINAL";
+        }
+        else if (isIntermission) {
+            suffix = ' Intermission';
         }
         else {
             switch (period) {
                 case 'Preview':
                     return 'Preview';
                 case 1:
-                    return '1st';
+                    return '1st'+suffix;
                 case 2:
-                    return '2nd';
+                    return '2nd'+suffix;
                 case 3:
-                    return '3rd';
+                    return '3rd'+suffix;
                 default:
-                    return 'OT'
+                    return 'OT'+suffix
                 }
         }
     }
@@ -126,7 +130,7 @@ class ExcitementAnalyzer {
         const endColor = '#2c2c2cfb';
         const bar = document.getElementById(containerId);
 
-        if (isPreview && containerId.includes("-five-"))
+        if (isPreview && containerId.includes("-pulse-"))
         {
             const parentNode = bar.parentNode;
             parentNode.classList.add('hidden')
@@ -188,6 +192,7 @@ class ExcitementAnalyzer {
         // ---- STATUS / TIME ----
         const isFinal = game_data.is_game_over;
         const isPreview = (game_data.period === "Preview");
+        const isIntermission = game_data.period_time_remaining.includes('Intermission');
         const periodText = this.formatPeriod(game_data.period, isFinal);
 
        
@@ -291,8 +296,8 @@ class ExcitementAnalyzer {
                             <div class="tug-gauge" id="gameExcitement-${id}"></div>
                         </div> 
                          <div class="tug-container tug-labels" id="overallExcitement">
-                            <span class="tug-title">Previous 5 Minutes</span>
-                            <div class="tug-gauge" id="gameExcitement-five-${id}"></div>
+                            <span class="tug-title">Pulse Check</span>
+                            <div class="tug-gauge" id="gameExcitement-pulse-${id}"></div>
                         </div>
                     </div>
                 ${badgesHTML}
@@ -307,7 +312,7 @@ class ExcitementAnalyzer {
         // create gauge AFTER DOM exists
         setTimeout(() => {
             this.createGrowingGauge(`gameExcitement-${id}`, game_data.ovr_excitment.excitement_score, game_data.ovr_excitment.excitement_level,isPreview);
-            this.createGrowingGauge(`gameExcitement-five-${id}`, game_data.five_min_excitment.excitement_score, game_data.five_min_excitment.excitement_level,isPreview);
+            this.createGrowingGauge(`gameExcitement-pulse-${id}`, game_data.pulse_excitment.excitement_score, game_data.pulse_excitment.excitement_level,isPreview);
 
            
         }, 0);
