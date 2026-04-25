@@ -22,6 +22,7 @@ class GameAnalyzer {
         this.isPreviewMode = false;
         if (this.gameId) {
             document.getElementById('debugGameId').textContent = this.gameId;
+            // Initial load
             this.loadGameInfo();
         } else {
             this.showError('No game ID provided');
