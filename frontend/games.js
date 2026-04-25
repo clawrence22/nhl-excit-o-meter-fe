@@ -192,8 +192,8 @@ class ExcitementAnalyzer {
         // ---- STATUS / TIME ----
         const isFinal = game_data.is_game_over;
         const isPreview = (game_data.period === "Preview");
-        const isIntermission = game_data.period_time_remaining.includes('Intermission');
-        const periodText = this.formatPeriod(game_data.period, isFinal);
+        const isIntermission = game_data.intermission;
+        const periodText = this.formatPeriod(game_data.period, isFinal,isIntermission);
 
        
 
