@@ -24,12 +24,6 @@ class GameAnalyzer {
             document.getElementById('debugGameId').textContent = this.gameId;
             // Initial load
             this.loadGameInfo();
-            
-            // Refresh every 15 seconds
-            this.refreshInterval = setInterval(() => {
-                this.loadGameInfo().catch(err => console.error("Refresh failed:", err));
-            }, 15000);
-
         } else {
             this.showError('No game ID provided');
         }
