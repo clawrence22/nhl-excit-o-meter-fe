@@ -17,19 +17,17 @@ class ExcitementAnalyzer {
         else if (isIntermission) {
             suffix = ' Intermission';
         }
-        else {
-            switch (period) {
-                case 'Preview':
-                    return 'Preview';
-                case 1:
-                    return '1st'+suffix;
-                case 2:
-                    return '2nd'+suffix;
-                case 3:
-                    return '3rd'+suffix;
-                default:
-                    return 'OT'+suffix
-                }
+        switch (period) {
+            case 'Preview':
+                return 'Preview';
+            case 1:
+                return '1st'+suffix;
+            case 2:
+                return '2nd'+suffix;
+            case 3:
+                return '3rd'+suffix;
+            default:
+                return 'OT'+suffix
         }
     }
 

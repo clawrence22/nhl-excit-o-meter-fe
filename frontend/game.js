@@ -41,6 +41,40 @@ class GameAnalyzer {
         this.displayStats(game);
     }
 
+    formatPeriod(period, isFinal,isIntermission) 
+    {
+        let suffix = ''
+        if (isFinal) {
+            return (period > 3) ? 'FINAL/OT' : "FINAL";
+        }
+        else if (isIntermission) {
+            suffix = ' Intermission';
+        }
+        switch (period) {
+            case 'Preview':
+                return 'Preview';
+            case 1:
+                return '1st'+suffix;
+            case 2:
+                return '2nd'+suffix;
+            case 3:
+                return '3rd'+suffix;
+            default:
+                return 'OT'+suffix
+        }
+    }
+    formatLocalStartTime(isoString, includeDate = false) {
+        if (!isoString) return '';
+        const start = new Date(isoString);
+        const timeOptions = { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
+        const timeText = start.toLocaleTimeString([], timeOptions);
+        if (!includeDate) {
+            return timeText;
+        }
+        const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+        const dateText = start.toLocaleDateString([], dateOptions);
+        return `${dateText} ${timeText}`;
+    }
 
     updateGameHeader(game) {
         console.log("SingleGameObj:",game)
@@ -64,25 +98,17 @@ class GameAnalyzer {
         this.createGrowingGauge('homeExcitement',home_data.ovr_excitment.excitement_score,home_data.ovr_excitment.excitement_level,isPreview);
         this.createGrowingGauge('homeExcitementPulse',home_data.pulse_excitment.excitement_score,home_data.pulse_excitment.excitement_level,isPreview);
 
-        // Live game - format period with ordinal suffix
-        let periodText = "Preview"
-        let timeRemaining = ""
-        if (!isPreview)
-        {
-            const num = parseInt(game_data.period);
-            periodText = num === 1 ? '1st' : num === 2 ? '2nd' : num === 3 ? '3rd' : `OT`;
-            if (game_data.is_game_over)
-            {
-                periodText = (num > 3) ? 'FINAL/OT' : "FINAL";
-            }
-
-            timeRemaining = game_data.period_time_remaining
-        }
+        
+        // ---- STATUS / TIME ----
+        const isFinal = game_data.is_game_over;
+        const isIntermission = game_data.intermission;
+        const periodText = this.formatPeriod(game_data.period, isFinal,isIntermission);
+        const timeLabel = isPreview ? this.formatLocalStartTime(game_data.start_time) : game_data.period_time_remaining;
 
         this.displayGameModifiers(excitement_data.modifiers,game.playoffs);
         
         document.getElementById('periodStatus').textContent = periodText;
-        document.getElementById('timeStatus').textContent = timeRemaining;
+        document.getElementById('timeStatus').textContent = timeLabel;
         this.createGrowingGauge('gameExcitement',game_data.ovr_excitment.excitement_score,game_data.ovr_excitment.excitement_level,isPreview);
         this.createGrowingGauge('pulseExcitement',game_data.pulse_excitment.excitement_score,game_data.pulse_excitment.excitement_level,isPreview);
        
@@ -171,12 +197,10 @@ class GameAnalyzer {
 
     createGrowingGauge(containerId,value,label,isPreview) {
 
-        console.log("Updating container:", containerId , "Is it Preview: ",isPreview)
         const bar = document.getElementById(containerId);
 
         if (isPreview && containerId.includes("Pulse"))
         {
-            console.log("Preview hiding Pulse Min Gauge")
             const parentNode = bar.parentNode;
             parentNode.classList.add('hidden')
             return
@@ -218,7 +242,6 @@ class GameAnalyzer {
 
         if (isPreview)
         {
-            console.log("Preview hiding Pulse Min Gauge")
             const parentNode = bar.parentNode;
             parentNode.classList.add('hidden')
             return
@@ -230,8 +253,8 @@ class GameAnalyzer {
         const total = away + home;
         const awayPct = (away / total) * 100;
 
-        const awayColor = this.teamColors?.[this.awayTeamAbbrev]?.primary ?? '#ff6b35';
-        const homeColor = this.teamColors?.[this.homeTeamAbbrev]?.primary ?? '#c0392b';
+        const awayColor = this.teamColors?.[this.awayTeamAbbrev]?.secondary ?? 'UNKNOWN';
+        const homeColor = this.teamColors?.[this.homeTeamAbbrev]?.primary ?? 'UNKNOWN';
 
         if (momentumOwner == "Back & Forth") {
             bar.classList.add('back-and-forth');
@@ -294,8 +317,6 @@ class GameAnalyzer {
         if (playoffs["elimination_game"] && !playoffs["game_seven"]) badges.push({label: 'Elimination Game', imageFile: "elimination_game", type: "highlight"});
         if (playoffs["cup_final"]) badges.push({label: 'Cup Final', imageFile: "cup_final", type: "highlight"});
 
-        console.log("Game Modifiers:", modifiers);
-        console.log("Derived Badges:", badges);
         badges.forEach((badge) => {
             // Create the div element
             var badgeEl = document.createElement('div');
