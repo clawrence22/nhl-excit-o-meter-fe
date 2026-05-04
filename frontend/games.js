@@ -178,8 +178,6 @@ class ExcitementAnalyzer {
         let game_data = game["game"]
         let home_data = game["home"]
         let away_data = game["away"]
-        let game_excitement_data = game["excitement"]
-        let playoffs = game["playoffs"]
         const gameCard = document.createElement('div');
         gameCard.className = 'game-card';
 
@@ -235,16 +233,18 @@ class ExcitementAnalyzer {
 
 
         // ---- BADGES ----
-        const modifiers = game_excitement_data.modifiers || {};
+        const modifiers = game_data.modifiers || {};
+        const momentum = game_data.momentum.overall
+        const playoffs = game_data.playoffs || {};
         const badges = [];
 
 
         if (modifiers["close-game"]) badges.push({icon: '<img src="assets/modifiers/close_game.svg"/>', label: 'Close Game', type: "highlight"});
         if (modifiers["high-scoring"]) badges.push({icon: '<img src="assets/modifiers/high_score.svg"/>', label: 'High-scoring Game', type: "highlight"});
-        if (modifiers["ice_tilt"]) badges.push({icon: '<img src="assets/modifiers/ice_tilt.svg" alt="Ice Tilt" />', label: 'Ice Tilt', type: "detractor"});
+        if (momentum["ice_tilt"]) badges.push({icon: '<img src="assets/modifiers/ice_tilt.svg" alt="Ice Tilt" />', label: 'Ice Tilt', type: "detractor"});
         if (modifiers["next-goal-wins"]) badges.push({icon: '<img src="assets/modifiers/next_goal_wins.svg" alt="Next Goal Wins" />', label: 'Next Goal Wins', type: "highlight"});
         if (modifiers["frenzy"]) badges.push({icon: '<img src="assets/modifiers/frenzy.svg" alt="Chance Frenzy" />', label: 'Chance Frenzy', type: "highlight"});
-        if (modifiers["back_and_forth"]) badges.push({icon: '<img src="assets/modifiers/back_and_forth.svg" alt="Back and Forth" />', label: 'Back and Forth', imageFile: "back_and_forth", type: "highlight"});
+        if (momentum["back_and_forth"]) badges.push({icon: '<img src="assets/modifiers/back_and_forth.svg" alt="Back and Forth" />', label: 'Back and Forth', imageFile: "back_and_forth", type: "highlight"});
         if (playoffs["is_playoff"]) badges.push({icon: '<img src="assets/modifiers/playoffs.svg" alt="Playoff Game" />', label: 'Playoff Game', type: "highlight"});
         if (playoffs["game_seven"]) badges.push({icon: '<img src="assets/modifiers/game_seven.svg" alt="Game Seven" />', label: 'Game Seven', type: "highlight"});
         if (playoffs["elimination_game"] && !playoffs["game_seven"]) badges.push({icon: '<img src="assets/modifiers/elimination_game.svg" alt="Elimination Game" />', label: 'Elimination Game', type: "highlight"});

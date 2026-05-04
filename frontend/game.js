@@ -81,7 +81,6 @@ class GameAnalyzer {
         let away_data = game["away"]
         let home_data = game["home"]
         let game_data = game["game"]
-        let excitement_data = game["excitement"]
         const isPreview = game_data.period === "Preview"
 
         // Update team matchup header
@@ -105,12 +104,12 @@ class GameAnalyzer {
         const periodText = this.formatPeriod(game_data.period, isFinal,isIntermission);
         const timeLabel = isPreview ? this.formatLocalStartTime(game_data.start_time) : game_data.period_time_remaining;
 
-        this.displayGameModifiers(excitement_data.modifiers,game.playoffs);
+        this.displayGameModifiers(game_data.modifiers,game_data.momentum.overall,game_data.playoffs);
         
         document.getElementById('periodStatus').textContent = periodText;
         document.getElementById('timeStatus').textContent = timeLabel;
         this.createGrowingGauge('gameExcitement',game_data.ovr_excitment.excitement_score,game_data.ovr_excitment.excitement_level,isPreview);
-        this.createGrowingGauge('pulseExcitement',game_data.pulse_excitment.excitement_score,game_data.pulse_excitment.excitement_level,isPreview);
+        this.createGrowingGauge('gameExcitementPulse',game_data.pulse_excitment.excitement_score,game_data.pulse_excitment.excitement_level,isPreview);
        
     }
 
@@ -147,7 +146,6 @@ class GameAnalyzer {
         let game_data = game["game"]
         let away_data = game["away"]
         let home_data = game["home"]
-        let excitement_data = game["excitement"]
 
         const isPreview = (game_data.period === "Preview")
         
@@ -163,17 +161,25 @@ class GameAnalyzer {
         const statsTitleEl = document.getElementById('mainStatsHeader');
         if (isPreview)
         {
+            const bar = document.getElementById('iceTilt');
+            console.log("Preview - hiding tilt gauge")
+            const parentNode = bar.parentNode;
+            parentNode.classList.add('hidden')
             statsTitleEl.textContent = 'Series Averages Between These Teams';
         }
-
+        else
+        {
+            this.createIceTiltGauge(away_data.momentum.overall.momentum, home_data.momentum.overall.momentum,game_data.momentum.overall.owner);
+        }
+            
 
             var away_stats = {"goals":away_data.goals, "hdc":away_data.hdc, "mdc":away_data.mdc, "hits":away_data.hits};
             var home_stats = {"goals": home_data.goals, "hdc": home_data.hdc, "mdc": home_data.mdc, "hits": home_data.hits}; 
 
             this.updateTotals('home', home_stats);
             this.updateTotals('away', away_stats);
-            this.createIceTiltGauge(away_data.momentum, home_data.momentum,game_data.momentum_owner,isPreview);
-        }
+       
+    }
 
     updateTotals(team, totals) {
         document.getElementById(`${team}Goals`).textContent = totals.goals;
@@ -201,6 +207,7 @@ class GameAnalyzer {
 
         if (isPreview && containerId.includes("Pulse"))
         {
+            console.log("Preview - hiding pulse gauge")
             const parentNode = bar.parentNode;
             parentNode.classList.add('hidden')
             return
@@ -242,6 +249,7 @@ class GameAnalyzer {
 
         if (isPreview)
         {
+            console.log("Preview - hiding tilt gauge")
             const parentNode = bar.parentNode;
             parentNode.classList.add('hidden')
             return
@@ -258,16 +266,21 @@ class GameAnalyzer {
 
         if (momentumOwner == "Back & Forth") {
             bar.classList.add('back-and-forth');
-            bar.style.background = '';
-            bar.style.setProperty('--tug-away', awayColor);
-            bar.style.setProperty('--tug-home', homeColor);
+            bar.classList.remove('tug-o-war')
+
         } else {
             bar.classList.remove('back-and-forth');
+            bar.classList.add('tug-o-war');
             bar.innerHTML = '';
             const blendWidth = 8;
             const cutStart = Math.max(0, awayPct - blendWidth / 2);
             const cutEnd = Math.min(100, awayPct + blendWidth / 2);
-            bar.style.background = `linear-gradient(to right, ${awayColor} ${cutStart}%, #888 ${awayPct}%, ${homeColor} ${cutEnd}%)`;
+            bar.style.background = '';
+            bar.style.setProperty('--tug-away', awayColor);
+            bar.style.setProperty('--tug-home', homeColor);
+            bar.style.setProperty('--cut-start',cutStart +'%');
+            bar.style.setProperty('--away-pct',awayPct + '%');
+            bar.style.setProperty('--cut-end', cutEnd + '%');
         }
         
          bar.innerHTML = `<span class="tug-label">${momentumOwner}</span>`;
@@ -303,13 +316,13 @@ class GameAnalyzer {
         badgesEl.appendChild(badgeEl);
     }
 
-    displayGameModifiers(modifiers,playoffs) {
+    displayGameModifiers(modifiers,momentum,playoffs) {
         
         var badgesEl =  document.getElementById("game-excitement-summary");
         const badges = [];
         if (modifiers["next-goal-wins"]) badges.push({label: 'Next Goal Wins', imageFile: "next_goal_wins", type: "highlight"});
-        if (modifiers["back_and_forth"]) badges.push({label: 'Back and Forth', imageFile: "back_and_forth", type: "highlight"});
-        if (modifiers["ice_tilt"]) badges.push({label: 'Ice Tilt', imageFile: "ice_tilt", type: "detactor"});
+        if (momentum["back_and_forth"]) badges.push({label: 'Back and Forth', imageFile: "back_and_forth", type: "highlight"});
+        if (momentum["ice_tilt"]) badges.push({label: 'Ice Tilt', imageFile: "ice_tilt", type: "detractor"});
         if (modifiers["close-game"]) badges.push({label: 'Close Game', imageFile: "close_game", type: "highlight"});
         if (modifiers["high-scoring"]) badges.push({label: 'High Scoring', imageFile: "high_score", type: "highlight"});
         if (playoffs["is_playoff"]) badges.push({label: 'Playoff Game', imageFile: "playoffs", type: "highlight"});

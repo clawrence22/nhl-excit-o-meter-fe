@@ -656,6 +656,22 @@ body {
     border-color: #888 !important;
 }
 
+.tug-o-war  {
+    --tug-away: #494949;
+    --tug-home: #505050;
+    --cut-start: 0%;
+    --away-pct: 50%;
+    --cut-end: 100%;
+    background: linear-gradient(
+        90deg, 
+        var(--tug-away) var(--cut-start), 
+        #888 var(--away-pct), 
+        var(--tug-home) var(--cut-end)
+        ) !important; 
+    border-color: #888 !important;
+}
+
+
 .back-and-forth-label {
     position: relative;
     z-index: 1;
