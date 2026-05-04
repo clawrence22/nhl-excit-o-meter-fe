@@ -234,7 +234,7 @@ class ExcitementAnalyzer {
 
         // ---- BADGES ----
         const modifiers = game_data.modifiers || {};
-        const momentum = game_data.momentum.overall
+        const momentum = game_data.momentum.overall || {};
         const playoffs = game_data.playoffs || {};
         const badges = [];
 
