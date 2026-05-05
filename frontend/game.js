@@ -32,7 +32,7 @@ class GameAnalyzer {
     async loadGameInfo() {
         const [response, teamColors] = await Promise.all([
             fetch(`${this.apiBase}/excitement_game?id=${this.gameId}&date=${this.gameDate}`),
-            fetch('team-colors.json').then(r => r.json())
+            fetch('../assets/teams/team-colors.json').then(r => r.json())
         ]);
         if (!response.ok) throw new Error(`Failed to fetch schedule: ${response.status}`);
         const game = await response.json();
@@ -162,14 +162,19 @@ class GameAnalyzer {
         if (isPreview)
         {
             const bar = document.getElementById('iceTilt');
-            console.log("Preview - hiding tilt gauge")
             const parentNode = bar.parentNode;
             parentNode.classList.add('hidden')
+            
+            const barPulse = document.getElementById('iceTiltPulse');
+            const parentNodePulse = barPulse.parentNode;
+            parentNodePulse.classList.add('hidden')
             statsTitleEl.textContent = 'Series Averages Between These Teams';
         }
         else
         {
-            this.createIceTiltGauge(away_data.momentum.overall.momentum, home_data.momentum.overall.momentum,game_data.momentum.overall.owner);
+            this.createIceTiltGauge('iceTilt',away_data.momentum.overall.momentum, home_data.momentum.overall.momentum,game_data.momentum.overall.owner);
+            this.createIceTiltGauge('iceTiltPulse',away_data.momentum.pulse.momentum, home_data.momentum.pulse.momentum,game_data.momentum.pulse.owner);
+            
         }
             
 
@@ -242,18 +247,33 @@ class GameAnalyzer {
         bar.appendChild(labelSpan);
     }
 
+    hexToRgb(hex) {
+        const bigint = parseInt(hex.replace('#', ''), 16);
+        return {
+            r: (bigint >> 16) & 255,
+            g: (bigint >> 8) & 255,
+            b: bigint & 255
+        };
+    }
+    
 
-    createIceTiltGauge(awayMomentum, homeMomentum,momentumOwner,isPreview) {
+    similarColors(team1Hex,team2Hex, threshold = 50) {
+        const rgb1 = this.hexToRgb(team1Hex)
+        const rgb2 = this.hexToRgb(team2Hex);
 
-        const bar = document.getElementById('iceTilt');
+        const distance = Math.sqrt(
+            Math.pow(rgb1.r - rgb2.r, 2) +
+            Math.pow(rgb1.g - rgb2.g, 2) +
+            Math.pow(rgb1.b - rgb2.b, 2)
+        );
 
-        if (isPreview)
-        {
-            console.log("Preview - hiding tilt gauge")
-            const parentNode = bar.parentNode;
-            parentNode.classList.add('hidden')
-            return
-        }
+        return distance < threshold;
+    }
+
+
+    createIceTiltGauge(guageId,awayMomentum, homeMomentum,momentumOwner,isPreview) {
+
+        const bar = document.getElementById(guageId);
 
         let away = awayMomentum;
         let home = homeMomentum;
@@ -261,8 +281,13 @@ class GameAnalyzer {
         const total = away + home;
         const awayPct = (away / total) * 100;
 
-        const awayColor = this.teamColors?.[this.awayTeamAbbrev]?.secondary ?? 'UNKNOWN';
-        const homeColor = this.teamColors?.[this.homeTeamAbbrev]?.primary ?? 'UNKNOWN';
+        let awayColor = this.teamColors[this.awayTeamAbbrev].primary;
+        const homeColor = this.teamColors[this.homeTeamAbbrev].primary;
+
+        if (this.similarColors(awayColor,homeColor))
+        {
+            awayColor = this.teamColors[this.awayTeamAbbrev].secondary
+        }
 
         if (momentumOwner == "Back & Forth") {
             bar.classList.add('back-and-forth');
