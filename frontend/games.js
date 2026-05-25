@@ -261,7 +261,7 @@ class ExcitementAnalyzer {
                 else detractors.push(b.label);
 
                 return `<div class="game-badge ${b.type}">
-                            <span class="badge-icon badge-label">${b.icon} ${b.label}</span>
+                            <span class="badge-icon badge-label">${b.icon} </span> <span class="badge-label"> ${b.label}</span>
                         </div>`;
             }).join('');
 
