@@ -218,7 +218,7 @@ class GameAnalyzer {
             return
         }
 
-        const valuePct = (value / 100) * 100;
+        const valuePct = Math.max((value / 100) * 100),92)
 
        
         const endColor = '#767676';
